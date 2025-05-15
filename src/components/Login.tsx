@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { SimpleSpinner } from './Spinner';
 
 interface LoginProps {
   onLoginSuccess: () => void;
@@ -7,9 +8,13 @@ interface LoginProps {
 const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState<string | null>(null);
+  const [messageType, setMessageType] = useState<'success' | 'error' | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setLoading(true);
     try {
       const res = await fetch('/api/login', {
         method: 'POST',
@@ -21,19 +26,32 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
       });
       const data = await res.json();
       if (data.success) {
-        alert('Login successful!');
-        onLoginSuccess();
+        setMessage('Login successful!');
+        setMessageType('success');
+        setTimeout(() => {
+          setMessage(null);
+          onLoginSuccess();
+        }, 2000);
       } else {
-        alert('Login failed: ' + (data.error || 'Unknown error'));
+        setMessage('Login failed: ' + (data.error || 'Unknown error'));
+        setMessageType('error');
+        setTimeout(() => setMessage(null), 2000);
       }
     } catch (err) {
-      alert('An error occurred during login.');
+      setMessage('An error occurred during login.');
+      setMessageType('error');
+      setTimeout(() => setMessage(null), 2000);
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
     <div className="max-w-md mx-auto mt-16 p-6 border border-secondary/40 rounded-lg shadow-lg bg-white">
       <h2 className="text-2xl text-secondary font-bold text-center mb-6">Login</h2>
+      {message && (
+        <div className={`mb-4 text-center rounded font-semibold ${messageType === 'success' ? 'text-green-600 bg-green-200' : 'text-red-600 bg-red-200'}`}>{message}</div>
+      )}
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
         <div className="mb-2">
           <label htmlFor="username" className="block mb-1 font-medium text-foreground">Username</label>
@@ -44,6 +62,7 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
             onChange={e => setUsername(e.target.value)}
             required
             className="w-full px-3 py-2 border border-secondary/40 rounded bg-white text-primary focus:outline-none focus:ring-2 focus:ring-accent"
+            disabled={loading}
           />
         </div>
         <div className="mb-4">
@@ -55,13 +74,15 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
             onChange={e => setPassword(e.target.value)}
             required
             className="w-full px-3 py-2 border border-secondary/40 rounded bg-white text-primary focus:outline-none focus:ring-2 focus:ring-accent"
+            disabled={loading}
           />
         </div>
         <button
           type="submit"
-          className="w-full py-2 rounded bg-primary text-white font-semibold text-lg hover:bg-secondary transition-colors"
+          className="w-full py-2 rounded bg-primary flex justify-center items-center text-white font-semibold text-lg hover:bg-secondary transition-colors"
+          disabled={loading}
         >
-          Login
+          {loading ? <SimpleSpinner /> : 'Login'}
         </button>
       </form>
     </div>

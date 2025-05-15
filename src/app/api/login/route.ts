@@ -7,7 +7,6 @@ export async function POST(req: NextRequest) {
   const { username, password } = body;
 
   const sessionCookie = (await cookies()).get('ci_session')?.value;
-  console.log('Session Cookie:', sessionCookie);
 
   const response = await fetch('https://gmcg.edu.pk/cms/site/userlogin', {
     method: 'POST',
@@ -18,14 +17,14 @@ export async function POST(req: NextRequest) {
       'Accept': 'text/html',
     },
     body: new URLSearchParams({
-      username, // replace with actual form field name
-      password, // replace with actual form field name
+      username,
+      password,
     }).toString(),
     redirect: 'manual',
   });
 
   const location = response.headers.get('location');
-  if (location?.includes('dashboard')) {
+  if (location) {
     return NextResponse.json({ success: true, redirect: location });
   }
 

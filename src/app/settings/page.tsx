@@ -1,9 +1,4 @@
-"use client";
-
-import { useEffect, useState } from "react";
-import Spinner from "@/components/Spinner";
 import SettingsForm from "@/components/settings/SettingsForm";
-import FileUpload from "@/components/settings/FileUpload";
 
 export default function SettingsPage() {
 
@@ -13,7 +8,6 @@ export default function SettingsPage() {
       <>
         <p className="text-foreground mb-4">Define the start and end dates for each quarter:</p>
         <SettingsForm />
-        <FileUpload />
       </>
     </div>
   );

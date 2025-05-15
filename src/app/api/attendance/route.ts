@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import * as cheerio from 'cheerio';
+import { AttendanceRow } from '@/components/Attendance';
 
 export async function GET(req: NextRequest) {
     const sessionCookie = req.cookies.get('ci_session')?.value;
@@ -25,15 +26,7 @@ export async function GET(req: NextRequest) {
     const $ = cheerio.load(html);
 
     const rows = $('table.table.table-striped.table-bordered.table-hover tbody tr');
-    const attendance: Array<{
-        rowNumber: string;
-        subject: string;
-        lectureType: string;
-        teacher: string;
-        lectureTime: string;
-        date: string;
-        status: string;
-    }> = [];
+    const attendance: AttendanceRow[] = [];
 
     rows.each((_, row) => {
         const cols = $(row).find('td').map((_, td) => $(td).text().trim()).get();

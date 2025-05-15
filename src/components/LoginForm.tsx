@@ -1,31 +1,20 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
 import Login from './Login';
-import Attendance from './Attendance';
 
-const LoginForm = () => {
-  const [loggedIn, setLoggedIn] = useState(false);
+interface LoginProps {
+  setLoggedIn: (loggedIn: boolean) => void;
+}
 
-  useEffect(() => {
-    // On page load, send GET request to /api/get-cookie
-    fetch('/api/get-cookie', {
-      method: 'GET',
-      credentials: 'include', // allow cookies to be set
-    })
-      .then(async (res) => {
-        if (res.ok) setLoggedIn(true);
-      })
-      .catch(() => {});
-  }, []);
+const LoginForm = ({ setLoggedIn }: LoginProps) => {
+  // onLoginSuccess just sets loggedIn to true
+  const handleLoginSuccess = () => {
+    setLoggedIn(true);
+  };
 
   return (
     <div>
-      {!loggedIn ? (
-        <Login onLoginSuccess={() => setLoggedIn(true)} />
-      ) : (
-        <Attendance />
-      )}
+      <Login onLoginSuccess={handleLoginSuccess} />
     </div>
   );
 };
