@@ -33,7 +33,6 @@ export async function GET(req: NextRequest) {
 
         if (cols.length >= 7) {
             attendance.push({
-                rowNumber: cols[0],
                 subject: cols[1],
                 lectureType: cols[2],
                 teacher: cols[3],
