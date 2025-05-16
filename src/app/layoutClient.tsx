@@ -29,6 +29,7 @@ export default function RootLayoutClient({
     const [deferredPrompt, setDeferredPrompt] = useState<null | any>(null);
     const [showInstall, setShowInstall] = useState(false);
     const [isIOS, setIsIOS] = useState(false);
+    const [showIOSInstructions, setShowIOSInstructions] = useState(false);
 
     useEffect(() => {
         // iOS/Safari detection
@@ -115,10 +116,32 @@ export default function RootLayoutClient({
                 <Analytics />
                 <Header />
                 {isIOS && (
-                    <div className="fixed bottom-4 right-6 z-50 max-w-xs bg-accent text-white rounded-lg shadow-lg px-5 py-4 flex items-center gap-2 border border-accent/70">
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v12m0 0l-4-4m4 4l4-4m-9 6h10" /></svg>
-                        <span className="text-sm font-medium">To install this app, tap <span className="font-bold">Share</span> <span className="inline-block align-middle">&#x2191;</span> then <span className="font-bold">Add to Home Screen</span>.</span>
-                    </div>
+                    <>
+                        <button
+                            className="fixed bottom-4 right-6 z-50 p-1 rounded-full bg-accent text-white shadow-lg border border-accent/70 hover:bg-accent/90 transition flex items-center justify-center"
+                            aria-label="Show iOS Install Instructions"
+                            onClick={() => setShowIOSInstructions(true)}
+                        >
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v12m0 0l-4-4m4 4l4-4m-9 6h10" /></svg>
+                        </button>
+                        {showIOSInstructions && (
+                            <div className="fixed inset-0 z-50 flex items-end justify-end px-6 pb-3">
+                                <div className="max-w-xs bg-accent text-white rounded-lg shadow-lg px-5 py-4 flex items-center justify-center gap-2 border border-accent/70 relative">
+                                    {/* Provided iOS Share SVG */}
+                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 16V4m0 0l4 4m-4-4l-4 4M4 20h16" /></svg>
+                                    <span className="text-sm font-medium">To install this app, tap <span className="font-bold">Share</span> <span className="inline-block align-middle"><svg fill='#fff' viewBox='0 0 50 50' xmlns='http://www.w3.org/2000/svg' className='h-6 w-6 -mx-1' style={{ strokeWidth: 1, stroke: 'white' }}><path d='M30.3 13.7L25 8.4l-5.3 5.3-1.4-1.4L25 5.6l6.7 6.7z'></path><path d='M24 7h2v21h-2z'></path><path d='M35 40H15c-1.7 0-3-1.3-3-3V19c0-1.7 1.3-3 3-3h7v2h-7c-.6 0-1 .4-1 1v18c0 .6.4 1 1 1h20c.6 0 1-.4 1-1V19c0-.6-.4-1-1-1h-7v-2h7c1.7 0 3 1.3 3 3v18c0 1.7-1.3 3-3 3z'></path></svg></span> then <span className="font-bold">Add to Home Screen</span>.</span>                                    <button
+                                        className="absolute top-1 right-1 text-white hover:bg-secondary/60 rounded w-6 h-6 flex items-center justify-center"
+                                        aria-label="Close"
+                                        onClick={() => setShowIOSInstructions(false)}
+                                    >
+                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" style={{ strokeWidth: 1, stroke: 'white' }} viewBox="0 0 20 20" fill="currentColor">
+                                            <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+                                        </svg>
+                                    </button>
+                                </div>
+                            </div>
+                        )}
+                    </>
                 )}
                 {!isIOS && showInstall && (
                     <button
