@@ -5,7 +5,7 @@ import RootLayoutClient from "./layoutClient";
 export const metadata: Metadata = {
   title: "GMC Attendance Viewer",
   description: "A Progressive Web App for viewing GMC attendance records.",
-  manifest: "/manifest.webmanifest",
+  manifest: "/web.manifest",
   icons: [
     { rel: "icon", url: "/logo.ico", type: "image/x-icon", sizes: "48x48" },
     { rel: "icon", url: "/logo.png", type: "image/png", sizes: "512x512" },
