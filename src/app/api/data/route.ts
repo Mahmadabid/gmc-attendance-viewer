@@ -56,7 +56,7 @@ export async function GET(req: NextRequest) {
                     teacher: cols[3],
                     lectureTime: cols[4],
                     date: cols[5],
-                    status: cols[6].toLowerCase(),
+                    status: cols[6],
                 });
             }
         });

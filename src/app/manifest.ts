@@ -24,13 +24,6 @@ export default function manifest(): MetadataRoute.Manifest {
     ],
     screenshots: [
       {
-        src: '/screenshot1.webp',
-        sizes: '512x512',
-        type: 'image/webp',
-        label: 'Login Screen',
-        form_factor: 'wide',
-      },
-      {
         src: '/screenshot2.webp',
         sizes: '512x512',
         type: 'image/webp',
@@ -43,6 +36,20 @@ export default function manifest(): MetadataRoute.Manifest {
         type: 'image/webp',
         label: 'Quarterly Attendance',
         form_factor: 'wide',
+      },
+      {
+        src: '/screenshot1.webp',
+        sizes: '512x512',
+        type: 'image/webp',
+        label: 'Login Screen',
+        form_factor: 'narrow',
+      },
+      {
+        src: '/screenshot2.webp',
+        sizes: '512x512',
+        type: 'image/webp',
+        label: 'Settings',
+        form_factor: 'narrow',
       }
     ],
   }
