@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { updateCookieMaxAgeAndExpires } from '@/components/lib/utils';
 
 export async function POST(req: NextRequest) {
   try {
@@ -36,7 +37,7 @@ export async function POST(req: NextRequest) {
     }
 
     const setCookie = response.headers.get('set-cookie');
-    
+
     // Check if we received a cookie, which indicates successful authentication
     if (!setCookie) {
       return NextResponse.json(
@@ -45,10 +46,14 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    const modifiedCookie = updateCookieMaxAgeAndExpires(setCookie, 300);
+
+    console.log('Modified Cookie:', modifiedCookie);
+
     const res = NextResponse.json({ success: true }, { status: 200 });
-    res.headers.set('Set-Cookie', setCookie);
+    res.headers.set('Set-Cookie', modifiedCookie);
     return res;
-    
+
   } catch (error) {
     console.error('Login error:', error);
     return NextResponse.json(

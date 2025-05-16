@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import * as cheerio from 'cheerio';
 import { AttendanceRow } from '@/components/Attendance';
+import { updateCookieMaxAgeAndExpires } from '@/components/lib/utils';
 
 export async function GET(req: NextRequest) {
     try {
@@ -31,6 +32,8 @@ export async function GET(req: NextRequest) {
 
         const html = await attendanceRes.text();
         const setCookie = attendanceRes.headers.get('set-cookie');
+        console.log(sessionCookie, setCookie)
+
         const $ = cheerio.load(html);
 
         // Fast login check via unique elements
@@ -40,6 +43,12 @@ export async function GET(req: NextRequest) {
         );
 
         if (!loggedIn) {
+            // Only update cookie if setCookie is present
+            let modifiedCookie = '';
+            if (setCookie) {
+                modifiedCookie = updateCookieMaxAgeAndExpires(setCookie, 300);
+                console.log('Modified Cookie:', modifiedCookie, 'hjkhk');
+            }
             const res = NextResponse.json({ loggedIn }, { status: attendanceRes.status });
             if (setCookie) res.headers.set('Set-Cookie', setCookie);
             return res;
@@ -82,6 +91,13 @@ export async function GET(req: NextRequest) {
             }
         }
 
+
+        // Only update cookie if setCookie is present
+        let modifiedCookie = '';
+        if (setCookie) {
+            modifiedCookie = updateCookieMaxAgeAndExpires(setCookie, 300);
+            console.log('Modified Cookie:', modifiedCookie);
+        }
         const res = NextResponse.json({ loggedIn: true, attendance }, { status: 200 });
         if (setCookie) res.headers.set('Set-Cookie', setCookie);
         return res;
