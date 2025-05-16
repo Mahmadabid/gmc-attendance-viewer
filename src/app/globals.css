@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 button {
-  @apply cursor-pointer rounded font-semibold px-4 py-2 disabled:cursor-not-allowed;
+  @apply cursor-pointer rounded font-semibold disabled:cursor-not-allowed;
 }
 
 @theme inline {

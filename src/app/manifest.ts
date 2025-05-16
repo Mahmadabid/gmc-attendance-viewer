@@ -8,18 +8,18 @@ export default function manifest(): MetadataRoute.Manifest {
     start_url: '/',
     display: 'standalone',
     background_color: '#f5f5f5',
-    theme_color: '#14202e',
+    theme_color: '#2b4257',
     icons: [
       {
         src: '/logo.png',
-        sizes: '512x512',
+        sizes: '500x500',
         type: 'image/png',
         purpose: 'maskable',
       },
       {
-        src: '/logo.ico',
-        sizes: '48x48',
-        type: 'image/x-icon',
+        src: '/logo-144.png',
+        sizes: '144x144',
+        type: 'image/png',
       },
     ],
     screenshots: [
@@ -28,18 +28,21 @@ export default function manifest(): MetadataRoute.Manifest {
         sizes: '512x512',
         type: 'image/png',
         label: 'Login Screen',
+        form_factor: 'wide',
       },
       {
         src: '/screenshot2.png',
         sizes: '512x512',
         type: 'image/png',
-        label: 'Attendance Records',
+        label: 'Settings',
+        form_factor: 'wide',
       },
       {
         src: '/screenshot3.png',
-        sizes: '512x512',
+        sizes: '1024x768',
         type: 'image/png',
         label: 'Quarterly Attendance',
+        form_factor: 'wide',
       },
     ],
   }

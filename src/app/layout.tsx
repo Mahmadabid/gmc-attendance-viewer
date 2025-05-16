@@ -7,9 +7,8 @@ export const metadata: Metadata = {
   description: "A Progressive Web App for viewing GMC attendance records.",
   manifest: "/manifest.webmanifest",
   icons: [
-    { rel: "icon", url: "/logo.ico", type: "image/x-icon", sizes: "48x48" },
-    { rel: "icon", url: "/logo.png", type: "image/png", sizes: "512x512" },
-    { rel: "apple-touch-icon", url: "/logo.png", sizes: "512x512" },
+    { rel: "icon", url: "/logo.png", type: "image/png", sizes: "500x500" },
+    { rel: "apple-touch-icon", url: "/logo.png", sizes: "500x500" },
   ],
   openGraph: {
     title: "GMC Attendance Viewer",
@@ -19,8 +18,8 @@ export const metadata: Metadata = {
     images: [
       {
         url: "/logo.png",
-        width: 512,
-        height: 512,
+        width: 500,
+        height: 500,
         alt: "GMC Attendance Viewer Logo",
       },
     ],
@@ -41,12 +40,15 @@ export const metadata: Metadata = {
   },
 };
 
+// Add viewport settings
+export const viewport = {
+  themeColor: "#2b4257",
+};
+
 export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  return (
-    <RootLayoutClient>{children}</RootLayoutClient>
-  );
+  return <RootLayoutClient>{children}</RootLayoutClient>;
 }

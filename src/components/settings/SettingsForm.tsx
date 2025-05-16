@@ -3,6 +3,7 @@
 import { TrashIcon } from "@heroicons/react/24/outline";
 import { useEffect, useState } from "react";
 import Spinner from "../Spinner";
+import { PlusCircleIcon } from "@heroicons/react/16/solid";
 
 export default function SettingsForm() {
   const [quarters, setQuarters] = useState<{ start: string; end: string }[]>([]);
@@ -21,7 +22,7 @@ export default function SettingsForm() {
         if (Array.isArray(parsed)) {
           setQuarters(parsed);
         }
-      } catch {}
+      } catch { }
     }
     setLoading(false);
   }, []);
@@ -182,7 +183,7 @@ export default function SettingsForm() {
                 <span>Skip last quarter end date</span>
               </div>
             )}
-            <hr className="border-t border-secondary/20 my-4" />
+            <hr className="border-t border-secondary/20 mt-4" />
           </div>
         ))}
       </div>
@@ -191,13 +192,13 @@ export default function SettingsForm() {
       <button
         type="button"
         onClick={handleAddQuarter}
-        className="mt-2 px-4 py-2 rounded bg-secondary text-white font-semibold hover:bg-primary transition-colors self-center"
+        className="group px-2 py-1 flex flex-row justify-center items-center gap-1 rounded bg-white text-primary border-2 hover:text-white border-secondary font-semibold hover:bg-secondary transition-colors self-center"
       >
-        Add Next Quarter
+        <PlusCircleIcon className="w-5 h-5 fill-secondary group-hover:fill-white transition-colors" /> Quarter
       </button>
       <button
         type="submit"
-        className="my-4 px-4 py-2 rounded bg-primary text-white font-semibold hover:bg-secondary transition-colors self-center"
+        className="mt-4 px-4 py-2 rounded bg-primary text-white font-semibold hover:bg-secondary transition-colors self-center"
       >
         Save
       </button>
