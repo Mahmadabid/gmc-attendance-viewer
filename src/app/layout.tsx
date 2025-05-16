@@ -1,12 +1,11 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import Header from "../components/Header";
-import { Analytics } from "@vercel/analytics/next";
-import { Geist, Geist_Mono } from "next/font/google";
+import RootLayoutClient from "./layoutClient";
 
 export const metadata: Metadata = {
   title: "GMC Attendance Viewer",
   description: "A Progressive Web App for viewing GMC attendance records.",
+  manifest: "/manifest.webmanifest",
   icons: [
     { rel: "icon", url: "/logo.ico", type: "image/x-icon", sizes: "48x48" },
     { rel: "icon", url: "/logo.png", type: "image/png", sizes: "512x512" },
@@ -42,32 +41,12 @@ export const metadata: Metadata = {
   },
 };
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
-
 export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <head>
-      </head>
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
-        <Analytics />
-        <Header />
-        {children}
-      </body>
-    </html>
+    <RootLayoutClient>{children}</RootLayoutClient>
   );
 }
