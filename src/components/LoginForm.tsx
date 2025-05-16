@@ -3,18 +3,14 @@
 import Login from './Login';
 
 interface LoginProps {
-  setLoggedIn: (loggedIn: boolean) => void;
+  setGetData: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-const LoginForm = ({ setLoggedIn }: LoginProps) => {
-  // onLoginSuccess just sets loggedIn to true
-  const handleLoginSuccess = () => {
-    setLoggedIn(true);
-  };
+const LoginForm = ({ setGetData }: LoginProps) => {
 
   return (
     <div>
-      <Login onLoginSuccess={handleLoginSuccess} />
+      <Login setGetData={setGetData} />
     </div>
   );
 };

@@ -23,9 +23,9 @@ const SubjectFilterButtons: React.FC<SubjectFilterButtonsProps> = ({ subjects, s
         <button
           key={subject}
           className={`px-4 py-2 rounded font-semibold border transition-colors ${selectedSubject === subject
-            ? 'bg-secondary text-white border-secondary'
+            ? `${isLow ? 'bg-red-700 text-white border-red-900': 'bg-secondary text-white border-secondary'}`
             : isLow
-              ? 'bg-red-300 text-white border-red-500 hover:bg-red-600'
+              ? 'bg-red-200 text-white border-red-500 hover:bg-red-400'
               : 'bg-white text-secondary border-secondary/50 hover:bg-secondary/10'}`}
           onClick={() => setSelectedSubject(subject)}
         >

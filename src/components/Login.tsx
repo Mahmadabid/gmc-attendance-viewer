@@ -2,10 +2,10 @@ import React, { useState } from 'react';
 import { SimpleSpinner } from './Spinner';
 
 interface LoginProps {
-  onLoginSuccess: () => void;
+  setGetData: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
+const Login: React.FC<LoginProps> = ({setGetData}) => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -28,19 +28,14 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
       if (data.success) {
         setMessage('Login successful!');
         setMessageType('success');
-        setTimeout(() => {
-          setMessage(null);
-          onLoginSuccess();
-        }, 2000);
+        setGetData(prev => !prev);
       } else {
         setMessage('Login failed: ' + (data.error || 'Unknown error'));
         setMessageType('error');
-        setTimeout(() => setMessage(null), 2000);
       }
     } catch (err) {
       setMessage('An error occurred during login.');
       setMessageType('error');
-      setTimeout(() => setMessage(null), 2000);
     } finally {
       setLoading(false);
     }

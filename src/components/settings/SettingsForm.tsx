@@ -64,6 +64,11 @@ export default function SettingsForm() {
     setDeleted(true);
   };
 
+  // Add a custom event to notify other tabs/components
+  const broadcastQuartersChange = () => {
+    window.dispatchEvent(new Event('quarters-changed'));
+  };
+
   const handleSave = (e: React.FormEvent) => {
     e.preventDefault();
     if (quarters.length === 0 && !deleted) {
@@ -94,6 +99,7 @@ export default function SettingsForm() {
     setError("");
     localStorage.setItem("quarters", JSON.stringify(quarters));
     setSaved(true);
+    broadcastQuartersChange(); // Notify listeners
     setTimeout(() => setSaved(false), 2500);
   };
 
@@ -191,7 +197,7 @@ export default function SettingsForm() {
       </button>
       <button
         type="submit"
-        className="mt-4 px-4 py-2 rounded bg-primary text-white font-semibold hover:bg-secondary transition-colors self-center"
+        className="my-4 px-4 py-2 rounded bg-primary text-white font-semibold hover:bg-secondary transition-colors self-center"
       >
         Save
       </button>
