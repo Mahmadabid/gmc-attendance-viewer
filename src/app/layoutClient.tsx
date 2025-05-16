@@ -35,18 +35,24 @@ export default function RootLayoutClient({
             navigator.serviceWorker
                 .register("/sw.js")
                 .then((registration) => {
-                    console.log("Service Worker registered with scope:", registration.scope);
+                    console.log("[PWA] Service Worker registered with scope:", registration.scope);
                 })
                 .catch((error) => {
-                    console.error("Service Worker registration failed:", error);
+                    console.error("[PWA] Service Worker registration failed:", error);
                 });
+        } else {
+            console.warn("[PWA] Service Worker not supported in this browser.");
         }
         const handler = (e: any) => {
+            console.log("[PWA] beforeinstallprompt event fired", e);
             e.preventDefault();
             setDeferredPrompt(e);
             setShowInstall(true);
         };
         window.addEventListener("beforeinstallprompt", handler);
+        window.addEventListener("appinstalled", () => {
+            console.log("[PWA] App was installed");
+        });
         return () => {
             window.removeEventListener("beforeinstallprompt", handler);
         };
@@ -66,6 +72,7 @@ export default function RootLayoutClient({
     return (
         <html lang="en">
             <head>
+                <link rel="manifest" href="/manifest.webmanifest" />
             </head>
             <body
                 className={`${geistSans.variable} ${geistMono.variable} antialiased`}
