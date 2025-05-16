@@ -44,6 +44,24 @@ export default function manifest(): MetadataRoute.Manifest {
         label: 'Quarterly Attendance',
         form_factor: 'wide',
       },
+      {
+        src: '/screenshot1.png',
+        sizes: '512x512',
+        type: 'image/png',
+        label: 'Login Screen',
+      },
+      {
+        src: '/screenshot2.png',
+        sizes: '512x512',
+        type: 'image/png',
+        label: 'Settings',
+      },
+      {
+        src: '/screenshot3.png',
+        sizes: '1024x768',
+        type: 'image/png',
+        label: 'Quarterly Attendance',
+      },
     ],
   }
 }

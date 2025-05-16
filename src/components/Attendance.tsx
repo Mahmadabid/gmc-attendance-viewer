@@ -6,7 +6,7 @@ import SubjectFilterButtons from './attendance/SubjectFilterButtons';
 import AttendanceSummaryTable from './attendance/AttendanceSummaryTable';
 import AttendanceTable from './attendance/AttendanceTable';
 import QuarterFilterButtons from './attendance/QuarterFilterButtons';
-import LoginForm from './LoginForm';
+import Login from './Login';
 
 export interface AttendanceRow {
   subject: string;
@@ -100,7 +100,7 @@ const Attendance: React.FC = () => {
 
   if (loading) return <div className='flex justify-center items-center min-h-[50vh]'><Spinner /></div>;
   if (error) return <div className="text-center mt-8 text-red-500">{error}</div>;
-  if (!loggedIn) return <LoginForm setGetData={setGetData} />;
+  if (!loggedIn) return <Login setGetData={setGetData} />;
   if (attendanceInQuarter.length === 0) return <div className="text-center mt-8">No attendance data found.</div>;
 
   // Calculate stats

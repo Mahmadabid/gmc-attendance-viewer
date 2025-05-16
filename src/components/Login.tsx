@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useState } from 'react';
 import { SimpleSpinner } from './Spinner';
 
@@ -24,7 +26,10 @@ const Login: React.FC<LoginProps> = ({setGetData}) => {
         credentials: 'include',
         body: JSON.stringify({ username, password }),
       });
+      
       const data = await res.json();
+      console.log(data);
+      
       if (data.success) {
         setMessage('Login successful!');
         setMessageType('success');
