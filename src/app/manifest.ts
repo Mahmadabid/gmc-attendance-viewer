@@ -57,14 +57,7 @@ export default function manifest(): MetadataRoute.Manifest {
         type: 'image/webp',
         label: 'Settings',
         form_factor: 'narrow',
-      },
-      {
-        src: '/screenshot3.webp',
-        sizes: '1024x768',
-        type: 'image/webp',
-        label: 'Quarterly Attendance',
-        form_factor: 'narrow',
-      },
+      }
     ],
   }
 }

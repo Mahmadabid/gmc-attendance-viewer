@@ -28,7 +28,6 @@ const Login: React.FC<LoginProps> = ({setGetData}) => {
       });
       
       const data = await res.json();
-      console.log(data);
       
       if (data.success) {
         setMessage('Login successful!');
