@@ -71,7 +71,7 @@ const Attendance: React.FC = () => {
         const data = await res.json();
 
         setLoggedIn(data.loggedIn);
-        setAttendance(data.attendance || []);
+        setAttendance((data.attendance || []).slice().reverse());
       } catch (err: any) {
         setError(err.message || 'Unknown error');
       } finally {

@@ -118,7 +118,7 @@ export default function RootLayoutClient({
                 {isIOS && (
                     <>
                         <button
-                            className="fixed bottom-4 right-6 z-50 p-1 rounded-full bg-accent text-white shadow-lg border border-accent/70 hover:bg-accent/90 transition flex items-center justify-center"
+                            className="fixed bottom-4 right-6 z-50 p-1 rounded-full bg-accent text-white shadow-lg border border-accent/70 hover:bg-secondary transition flex items-center justify-center"
                             aria-label="Show iOS Install Instructions"
                             onClick={() => setShowIOSInstructions(true)}
                         >
@@ -145,7 +145,7 @@ export default function RootLayoutClient({
                 )}
                 {!isIOS && showInstall && (
                     <button
-                        className="fixed bottom-4 right-6 z-50 px-3 py-2 rounded-lg shadow-lg font-semibold border border-accent bg-accent text-white hover:bg-accent/80 focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 transition"
+                        className="fixed bottom-4 right-6 z-50 px-3 py-2 rounded-lg shadow-lg font-semibold border border-accent bg-accent text-white hover:bg-secondary focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 transition"
                         onClick={handleInstallClick}
                         type="button"
                     >
