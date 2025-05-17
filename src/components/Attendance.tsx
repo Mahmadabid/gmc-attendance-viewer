@@ -117,8 +117,11 @@ const Attendance: React.FC = () => {
       } else if (event.data && event.data.type === 'FETCH_DUMMY_END') {
         setIsFetching(false);
       } else if (event.data && event.data.type === 'DUMMY_CACHE_UPDATED') {
-        // Re-fetch attendance from cache after background update
-        setGetData(prev => !prev);
+        // Only refresh if not already loading
+        setGetData(prev => {
+          if (!loading) return !prev;
+          return prev;
+        });
       }
     }
     if (navigator.serviceWorker) {
