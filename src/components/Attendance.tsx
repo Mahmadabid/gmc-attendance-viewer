@@ -160,12 +160,12 @@ const Attendance: React.FC = () => {
           <h1 className="text-4xl font-bold text-secondary text-center">Attendance</h1>
           {/* Refresh button styled as icon button */}
           <button
-            className="flex items-center gap-2 px-4 py-2 rounded bg-accent text-white font-semibold hover:bg-secondary/80 transition-colors shadow-md"
+            className="flex items-center gap-2 px-4 max-[520px]:px-2 py-2 rounded bg-accent text-white font-semibold hover:bg-secondary/80 transition-colors shadow-md"
             onClick={() => setGetData(prev => !prev)}
             title="Refresh attendance"
           >
             <ArrowPathIcon className="w-6 h-6" />
-            <span className="hidden sm:inline">Refresh</span>
+            <span className="hidden min-[520px]:inline">Refresh</span>
           </button>
         </div>
       </div>
