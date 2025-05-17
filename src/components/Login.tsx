@@ -13,6 +13,7 @@ const Login: React.FC<LoginProps> = ({setGetData}) => {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [messageType, setMessageType] = useState<'success' | 'error' | null>(null);
+  const [rememberMe, setRememberMe] = useState(true);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -24,7 +25,7 @@ const Login: React.FC<LoginProps> = ({setGetData}) => {
           'Content-Type': 'application/json',
         },
         credentials: 'include',
-        body: JSON.stringify({ username, password }),
+        body: JSON.stringify({ username, password, rememberMe }),
       });
       
       const data = await res.json();
@@ -75,6 +76,17 @@ const Login: React.FC<LoginProps> = ({setGetData}) => {
             className="w-full px-3 py-2 border border-secondary/40 rounded bg-white text-primary focus:outline-none focus:ring-2 focus:ring-accent"
             disabled={loading}
           />
+        </div>
+        <div className="mb-2 flex items-center">
+          <input
+            id="rememberMe"
+            type="checkbox"
+            checked={rememberMe}
+            onChange={e => setRememberMe(e.target.checked)}
+            className="mr-1 cursor-pointer accent-primary"
+            disabled={loading}
+          />
+          <label htmlFor="rememberMe" className="text-secondary/80 font-semibold select-none cursor-pointer">Remember me</label>
         </div>
         <button
           type="submit"

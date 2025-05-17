@@ -7,6 +7,7 @@ import AttendanceSummaryTable from './attendance/AttendanceSummaryTable';
 import AttendanceTable from './attendance/AttendanceTable';
 import QuarterFilterButtons from './attendance/QuarterFilterButtons';
 import Login from './Login';
+import { isDateInRange } from './lib/dateUtils';
 
 export interface AttendanceRow {
   subject: string;
@@ -49,7 +50,7 @@ const Attendance: React.FC = () => {
         try {
           const parsed = JSON.parse(stored);
           if (Array.isArray(parsed)) setQuarters(parsed);
-        } catch {}
+        } catch { }
       }
     };
     loadQuarters();
@@ -86,22 +87,16 @@ const Attendance: React.FC = () => {
   let currentQuarter = null;
   if (quarters && quarters.length > 0 && selectedQuarterIdx !== -1) {
     currentQuarter = quarters[selectedQuarterIdx] || quarters[0];
-    const { start, end } = currentQuarter;
-    attendanceInQuarter = attendance.filter(row => {
+    const { start, end } = currentQuarter; attendanceInQuarter = attendance.filter(row => {
       if (!row.date) return false;
-      const rowDate = new Date(row.date);
-      const startDate = start ? new Date(start) : null;
-      const endDate = end ? new Date(end) : null;
-      if (startDate && rowDate < startDate) return false;
-      if (endDate && rowDate > endDate) return false;
-      return true;
+      // Use the date directly - our isDateInRange function will parse it
+      return isDateInRange(row.date, start, end);
     });
   }
 
   if (loading) return <div className='flex justify-center items-center min-h-[50vh]'><Spinner /></div>;
   if (error) return <div className="text-center mt-8 text-red-500">{error}</div>;
   if (!loggedIn) return <Login setGetData={setGetData} />;
-  if (attendanceInQuarter.length === 0) return <div className="text-center mt-8">No attendance data found.</div>;
 
   // Calculate stats
   const totalLectures = attendanceInQuarter.length;
@@ -146,12 +141,9 @@ const Attendance: React.FC = () => {
       const { start, end } = q;
       const quarterRows = attendance.filter(row => {
         if (!row.date) return false;
-        const rowDate = new Date(row.date);
-        const startDate = start ? new Date(start) : null;
-        const endDate = end ? new Date(end) : null;
-        if (startDate && rowDate < startDate) return false;
-        if (endDate && rowDate > endDate) return false;
-        return true;
+
+        // Use the date directly with our improved isDateInRange function
+        return isDateInRange(row.date, start, end);
       });
       const total = quarterRows.length;
       const present = quarterRows.filter(row => row.status && row.status.toLowerCase() === 'present').length;
@@ -174,30 +166,43 @@ const Attendance: React.FC = () => {
         />
       )}
 
-      {/* Subject filter buttons */}
-      <SubjectFilterButtons
-        subjects={subjects}
-        subjectPercentages={subjectPercentages}
-        selectedSubject={selectedSubject}
-        setSelectedSubject={setSelectedSubject}
-      />
+      {attendanceInQuarter.length === 0 ? (
+        < div className="text-center text-2xl mt-24 font-semibold flex flex-col gap-5 text-secondary/80">
+          <span className='text-red-700'>No attendance yet</span>
+          <span className='text-xl'>Your attendance record will appear here once uploaded.</span>
+        </div>
+      ) :
+        <>
+          {/* Subject filter buttons */}
+          <SubjectFilterButtons
+            subjects={subjects}
+            subjectPercentages={subjectPercentages}
+            selectedSubject={selectedSubject}
+            setSelectedSubject={setSelectedSubject}
+          />
 
-      <div className='mt-10'>
-        <h2 className="text-3xl max-[450px]:text-2xl pt-5 font-bold mb-2 text-secondary text-center border-t border-secondary/20 py-2">{selectedStats?.subject ? selectedStats.subject : 'Total'} Attendance</h2>
-      </div>
+          <div className='mt-10'>
+            <h2 className="text-3xl max-[450px]:text-2xl pt-5 font-bold mb-2 text-secondary text-center border-t border-secondary/20 py-2">{selectedStats?.subject ? selectedStats.subject : 'Total'} Attendance</h2>
+          </div>
 
-      {/* Vertical summary table for selected subject only */}
-      {selectedSubject && selectedStats && (
-        <AttendanceSummaryTable stats={selectedStats} />
-      )}
+          {/* Vertical summary table for selected subject only */}
+          {
+            selectedSubject && selectedStats && (
+              <AttendanceSummaryTable stats={selectedStats} />
+            )
+          }
 
-      {/* Vertical summary table for all subjects */}
-      {selectedSubject === null && (
-        <AttendanceSummaryTable stats={{ total: totalLectures, present, absent, leave, percentage }} />
-      )}
+          {/* Vertical summary table for all subjects */}
+          {
+            selectedSubject === null && (
+              <AttendanceSummaryTable stats={{ total: totalLectures, present, absent, leave, percentage }} />
+            )
+          }
 
-      <AttendanceTable attendance={filteredAttendance} keyMap={keyMap} />
-    </div>
+          <AttendanceTable attendance={filteredAttendance} keyMap={keyMap} />
+        </>
+      }
+    </div >
   );
 };
 

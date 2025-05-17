@@ -4,7 +4,7 @@ import { updateCookieMaxAgeAndExpires } from '@/components/lib/utils';
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { username, password } = body;
+    const { username, password, rememberMe } = body;
 
     // Validate input
     if (!username || !password) {
@@ -48,10 +48,8 @@ export async function POST(req: NextRequest) {
 
     const modifiedCookie = updateCookieMaxAgeAndExpires(setCookie, 300);
 
-    console.log('Modified Cookie:', modifiedCookie);
-
     const res = NextResponse.json({ success: true }, { status: 200 });
-    res.headers.set('Set-Cookie', modifiedCookie);
+    res.headers.set('Set-Cookie', rememberMe ? modifiedCookie : setCookie);
     return res;
 
   } catch (error) {

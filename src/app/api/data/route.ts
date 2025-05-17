@@ -32,27 +32,8 @@ export async function GET(req: NextRequest) {
 
         const html = await attendanceRes.text();
         const setCookie = attendanceRes.headers.get('set-cookie');
-        console.log(sessionCookie, setCookie)
 
         const $ = cheerio.load(html);
-
-        // Fast login check via unique elements
-        const loggedIn = !(
-            $('h2.font-white.bolds:contains("Student Login")').length > 0 ||
-            $('input[name="username"], input[name="password"]').length > 0
-        );
-
-        if (!loggedIn) {
-            // Only update cookie if setCookie is present
-            let modifiedCookie = '';
-            if (setCookie) {
-                modifiedCookie = updateCookieMaxAgeAndExpires(setCookie, 300);
-                console.log('Modified Cookie:', modifiedCookie, 'hjkhk');
-            }
-            const res = NextResponse.json({ loggedIn }, { status: attendanceRes.status });
-            if (setCookie) res.headers.set('Set-Cookie', setCookie);
-            return res;
-        }
 
         // Extract attendance table rows
         const attendance: AttendanceRow[] = [];
@@ -91,16 +72,20 @@ export async function GET(req: NextRequest) {
             }
         }
 
-
-        // Only update cookie if setCookie is present
-        let modifiedCookie = '';
-        if (setCookie) {
-            modifiedCookie = updateCookieMaxAgeAndExpires(setCookie, 300);
-            console.log('Modified Cookie:', modifiedCookie);
+        // If attendance is empty, check for login failure only if login elements are present
+        if (attendance.length === 0) {
+            const loginElementsPresent = (
+                $('h2.font-white.bolds:contains("Student Login")').length > 0 ||
+                $('input[name="username"], input[name="password"]').length > 0
+            );
+            if (loginElementsPresent) {
+                return NextResponse.json({ loggedIn: false }, { status: attendanceRes.status });
+            }
+            // If attendance is empty but login elements are not present, user is logged in but has no attendance yet
+            return NextResponse.json({ loggedIn: true, attendance: [] }, { status: 200 });
         }
-        const res = NextResponse.json({ loggedIn: true, attendance }, { status: 200 });
-        if (setCookie) res.headers.set('Set-Cookie', setCookie);
-        return res;
+
+        return NextResponse.json({ loggedIn: true, attendance }, { status: 200 });
     } catch (error: any) {
         // Log error for debugging (optional: use a logger)
         console.error('API error in /api/data:', error);
