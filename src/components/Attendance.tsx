@@ -40,9 +40,9 @@ const Attendance: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [selectedSubject, setSelectedSubject] = useState<string | null>(null);
   const [selectedQuarterIdx, setSelectedQuarterIdx] = useState<number>(-1); // -1 means whole year
-  const [quarters, setQuarters] = useState<Quarter[]>([]);  const [getData, setGetData] = useState(false);
+  const [quarters, setQuarters] = useState<Quarter[]>([]);
+  const [getData, setGetData] = useState(false);
   const [isOnline, setIsOnline] = useState(true);
-  const [isBackgroundFetching, setIsBackgroundFetching] = useState(false);
 
   // Online/offline detection (move this above any conditional returns)
   useEffect(() => {
@@ -53,62 +53,6 @@ const Attendance: React.FC = () => {
     return () => {
       window.removeEventListener('online', updateOnline);
       window.removeEventListener('offline', updateOnline);
-    };
-  }, []);
-  // Create a ref to track if we're currently processing a data update
-  const dataUpdateInProgress = React.useRef(false);
-  
-  // Listen for background fetch messages from service worker
-  useEffect(() => {
-    const handleMessage = (event: MessageEvent) => {
-      console.log('Received message from service worker:', event.data);
-      
-      if (event.data && event.data.type === 'BACKGROUND_FETCH_START') {
-        console.log('Setting background fetching to TRUE');
-        setIsBackgroundFetching(true);
-      } else if (event.data && event.data.type === 'BACKGROUND_FETCH_COMPLETE') {
-        console.log('Setting background fetching to FALSE');
-        setIsBackgroundFetching(false);
-      } else if (event.data && event.data.type === 'DATA_UPDATED') {
-        console.log('Data updated, updating UI with cached data');
-        // When we receive new data, we'll just toggle getData to trigger the existing fetch effect
-        // But we need to avoid creating an infinite loop
-        if (!dataUpdateInProgress.current) {
-          dataUpdateInProgress.current = true;
-          // Use setTimeout to break the potential tight loop
-          setTimeout(() => {
-            setGetData(prev => !prev);
-            // Reset the flag after a reasonable delay to allow the fetch to complete
-            setTimeout(() => {
-              dataUpdateInProgress.current = false;
-            }, 3000); // 3 second cooldown before allowing another update
-          }, 100);
-        } else {
-          console.log('Update already in progress, ignoring duplicate update');
-        }
-      }
-    };
-    
-    // Function to set up the event listener
-    const setupServiceWorker = async () => {
-      // First, ensure we're listening at navigator.serviceWorker level
-      navigator.serviceWorker.addEventListener('message', handleMessage);
-      
-      // Also try to set up a listener on the active service worker registration
-      if (navigator.serviceWorker.controller) {
-        console.log('Service worker controller exists');
-      } else {
-        console.log('No service worker controller found');
-      }
-    };
-    
-    // Set up the service worker listeners
-    if ('serviceWorker' in navigator) {
-      setupServiceWorker();
-    }
-    
-    return () => {
-      navigator.serviceWorker.removeEventListener('message', handleMessage);
     };
   }, []);
 
@@ -227,23 +171,15 @@ const Attendance: React.FC = () => {
       <div className="flex justify-center mb-4">
         <div className="flex flex-row items-center gap-4">
           <h1 className="text-4xl font-bold text-secondary text-center">Attendance</h1>
-          {/* Refresh or Offline button styled as icon button */}          {isOnline ? (
+          {/* Refresh or Offline button styled as icon button */}
+          {isOnline ? (
             <button
-              className={`flex items-center gap-2 px-4 max-[520px]:px-2 py-2 rounded font-semibold shadow-md transition-colors ${
-                isBackgroundFetching || loading
-                  ? "bg-gray-400 cursor-not-allowed"
-                  : "bg-accent text-white hover:bg-secondary/80"
-              }`}
-              onClick={() => {
-                if (!isBackgroundFetching && !loading) {
-                  setGetData(prev => !prev);
-                }
-              }}
-              disabled={isBackgroundFetching || loading}
-              title={isBackgroundFetching ? "Updating in background..." : "Refresh attendance"}
+              className="flex items-center gap-2 px-4 max-[520px]:px-2 py-2 rounded bg-accent text-white font-semibold hover:bg-secondary/80 transition-colors shadow-md"
+              onClick={() => setGetData(prev => !prev)}
+              title="Refresh attendance"
             >
-              <ArrowPathIcon className={`w-6 h-6 ${isBackgroundFetching ? "animate-spin" : ""}`} />
-              <span className="hidden min-[520px]:inline">{isBackgroundFetching ? "Updating..." : "Refresh"}</span>
+              <ArrowPathIcon className="w-6 h-6" />
+              <span className="hidden min-[520px]:inline">Refresh</span>
             </button>
           ) : (
             <div className="flex items-center gap-2 px-4 max-[520px]:px-2 py-2 rounded bg-red-400 text-white font-semibold shadow-md cursor-not-allowed select-none" title="Offline mode">

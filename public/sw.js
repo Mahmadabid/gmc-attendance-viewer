@@ -69,45 +69,18 @@ self.addEventListener('fetch', (event) => {
   if (url.pathname === '/api/dummy') {
     const cacheKey = '/api/dummy';
     event.respondWith(
-      caches.match(cacheKey).then((cached) => {        if (cached) {
-          // Notify clients that background fetch is starting
-          self.clients.matchAll().then(clients => {
-            clients.forEach(client => {
-              client.postMessage({ type: 'BACKGROUND_FETCH_START' });
-            });
-          });
-          
+      caches.match(cacheKey).then((cached) => {
+        if (cached) {
           // Try network in background, but serve cache immediately
-          
           fetch(request)
             .then((response) => {
               if (response.ok) {
                 caches.open(CACHE_NAME).then((cache) => {
                   cache.put(cacheKey, response.clone());
-                  // Notify clients that new data is available
-                  self.clients.matchAll().then(clients => {
-                    clients.forEach(client => {
-                      client.postMessage({ type: 'DATA_UPDATED' });
-                    });
-                  });
                 });
               }
-              
-              // Notify clients that background fetch is complete
-              self.clients.matchAll().then(clients => {
-                clients.forEach(client => {
-                  client.postMessage({ type: 'BACKGROUND_FETCH_COMPLETE' });
-                });
-              });
             })
-            .catch(() => {
-              // Notify clients that background fetch failed/completed
-              self.clients.matchAll().then(clients => {
-                clients.forEach(client => {
-                  client.postMessage({ type: 'BACKGROUND_FETCH_COMPLETE' });
-                });
-              });
-            });
+            .catch(() => {}); // Ignore network errors
           return cached;
         } else {
           // No cache, try network
@@ -116,12 +89,6 @@ self.addEventListener('fetch', (event) => {
               if (response.ok) {
                 caches.open(CACHE_NAME).then((cache) => {
                   cache.put(cacheKey, response.clone());
-                  // Notify clients that new data is available
-                  self.clients.matchAll().then(clients => {
-                    clients.forEach(client => {
-                      client.postMessage({ type: 'DATA_UPDATED' });
-                    });
-                  });
                 });
               }
               return response;
