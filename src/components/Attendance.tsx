@@ -8,6 +8,7 @@ import AttendanceTable from './attendance/AttendanceTable';
 import QuarterFilterButtons from './attendance/QuarterFilterButtons';
 import Login from './Login';
 import { isDateInRange } from './lib/dateUtils';
+import { ArrowPathIcon } from '@heroicons/react/24/outline';
 
 export interface AttendanceRow {
   subject: string;
@@ -154,7 +155,20 @@ const Attendance: React.FC = () => {
 
   return (
     <div className="mt-8 mx-1 mb-4">
-      <h1 className="text-4xl font-bold mb-4 text-secondary text-center">Attendance</h1>
+      <div className="flex justify-center mb-4">
+        <div className="flex flex-row items-center gap-4">
+          <h1 className="text-4xl font-bold text-secondary text-center">Attendance</h1>
+          {/* Refresh button styled as icon button */}
+          <button
+            className="flex items-center gap-2 px-4 py-2 rounded bg-accent text-white font-semibold hover:bg-secondary/80 transition-colors shadow-md"
+            onClick={() => setGetData(prev => !prev)}
+            title="Refresh attendance"
+          >
+            <ArrowPathIcon className="w-6 h-6" />
+            <span className="hidden sm:inline">Refresh</span>
+          </button>
+        </div>
+      </div>
 
       {/* Quarter filter buttons */}
       {quarters && quarters.length > 0 && (
