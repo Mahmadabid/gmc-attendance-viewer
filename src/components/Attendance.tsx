@@ -167,7 +167,7 @@ const Attendance: React.FC = () => {
       )}
 
       {attendanceInQuarter.length === 0 ? (
-        < div className="text-center text-2xl mt-24 font-semibold flex flex-col gap-5 text-secondary/80">
+        < div className="text-center text-2xl mt-20 font-semibold flex flex-col gap-5 text-secondary/80">
           <span className='text-red-700'>No attendance yet</span>
           <span className='text-xl'>Your attendance record will appear here once uploaded.</span>
         </div>
