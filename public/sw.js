@@ -69,8 +69,14 @@ self.addEventListener('fetch', (event) => {
   if (url.pathname === '/api/dummy') {
     const cacheKey = '/api/dummy';
     event.respondWith(
-      caches.match(cacheKey).then((cached) => {
-        if (cached) {
+      caches.match(cacheKey).then((cached) => {        if (cached) {
+          // Notify clients that background fetch is starting
+          self.clients.matchAll().then(clients => {
+            clients.forEach(client => {
+              client.postMessage({ type: 'BACKGROUND_FETCH_START' });
+            });
+          });
+          
           // Try network in background, but serve cache immediately
           fetch(request)
             .then((response) => {
@@ -79,8 +85,22 @@ self.addEventListener('fetch', (event) => {
                   cache.put(cacheKey, response.clone());
                 });
               }
+              
+              // Notify clients that background fetch is complete
+              self.clients.matchAll().then(clients => {
+                clients.forEach(client => {
+                  client.postMessage({ type: 'BACKGROUND_FETCH_COMPLETE' });
+                });
+              });
             })
-            .catch(() => {}); // Ignore network errors
+            .catch(() => {
+              // Notify clients that background fetch failed/completed
+              self.clients.matchAll().then(clients => {
+                clients.forEach(client => {
+                  client.postMessage({ type: 'BACKGROUND_FETCH_COMPLETE' });
+                });
+              });
+            });
           return cached;
         } else {
           // No cache, try network

@@ -77,6 +77,14 @@ export default function DummyPushPage() {
 		setLoading(false);
 	};
 
+	const deleteAll = async () => {
+		setLoading(true);
+		setResult(null);
+		const { error } = await supabase.from("dummy_attendance").delete().neq('id', -1); // delete all rows
+		setResult(!error ? "All dummy attendance deleted!" : error.message || "Failed");
+		setLoading(false);
+	};
+
 	return (
 		<div
 			style={{
@@ -195,6 +203,29 @@ export default function DummyPushPage() {
 					}}
 				>
 					{loading ? "Pushing..." : "Push Selected Dummy"}
+				</button>
+				<button
+					onClick={deleteAll}
+					disabled={loading}
+					style={{
+						marginTop: 10,
+						padding: "0.7rem 2.2rem",
+						fontSize: 17,
+						background: loading ? "#f7b3b3" : "#d32f2f",
+						color: "#fff",
+						border: "none",
+						borderRadius: 7,
+						fontWeight: 600,
+						cursor: loading ? "not-allowed" : "pointer",
+						boxShadow: loading
+							? "none"
+							: "0 2px 8px #d32f2f20",
+						transition:
+							"background 0.2s, box-shadow 0.2s",
+						width: "100%",
+					}}
+				>
+					{loading ? "Deleting..." : "Delete All"}
 				</button>
 				{result && (
 					<p
