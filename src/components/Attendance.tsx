@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import Spinner from './Spinner';
+import Spinner, { SimpleSpinner } from './Spinner';
 import SubjectFilterButtons from './attendance/SubjectFilterButtons';
 import AttendanceSummaryTable from './attendance/AttendanceSummaryTable';
 import AttendanceTable from './attendance/AttendanceTable';
@@ -194,12 +194,12 @@ const Attendance: React.FC = () => {
           {/* Refresh or Offline button styled as icon button */}
           {isOnline ? (
             <button
-              className={`flex items-center gap-2 px-4 max-[520px]:px-2 py-2 rounded bg-accent text-white font-semibold hover:bg-secondary/80 transition-colors shadow-md ${isFetching ? 'opacity-60 cursor-not-allowed' : ''}`}
+              className={`flex items-center gap-2 px-4 max-[520px]:px-2 py-2 rounded bg-accent text-white font-semibold hover:bg-secondary/80 transition-colors shadow-md ${isFetching ? 'opacity-80 cursor-not-allowed' : ''}`}
               onClick={() => setGetData(prev => !prev)}
               title={isFetching ? 'Refreshing...' : 'Refresh attendance'}
               disabled={isFetching}
             >
-              <ArrowPathIcon className="w-6 h-6" />
+              <ArrowPathIcon className={`w-6 h-6 ${isFetching ? 'animate-spin' : ''}`} />
               <span className="hidden min-[520px]:inline">Refresh</span>
             </button>
           ) : (
