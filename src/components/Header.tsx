@@ -14,7 +14,7 @@ export default function Header() {
             <nav className="max-w-4xl mx-auto flex items-center justify-between max-[500px]:px-2 max-[460px]:px-1 px-4 py-3 sm:py-4 min-h-[56px]">
                 <div className="flex items-center gap-2 min-h-[32px]">
                     <Link href='/'>
-                        <span className="text-xl font-extrabold tracking-tight flex flex-row items-center text-accent drop-shadow-sm">
+                        <span className="text-xl font-extrabold tracking-tight flex flex-row items-center text-accent hover:text-white drop-shadow-sm">
                             Attendance <span className="hidden min-[360px]:flex">&nbsp;Viewer</span>
                         </span>
                     </Link>

@@ -6,7 +6,7 @@ import { ArrowUturnLeftIcon } from "@heroicons/react/16/solid";
 export default function SettingsPage() {
 
   return (
-    <div className="flex flex-col items-center px-2 justify-center mt-10 min-h-[30vh]">
+    <div className="flex flex-col items-center px-2 mt-5 min-h-[30vh]">
       {/* Go back button */}
       <div className="flex items-center mb-4">
         <button

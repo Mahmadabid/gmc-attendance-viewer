@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import * as cheerio from 'cheerio';
 import { AttendanceRow } from '@/components/Attendance';
-import { updateCookieMaxAgeAndExpires } from '@/components/lib/utils';
 
 export async function GET(req: NextRequest) {
     try {
@@ -31,7 +30,6 @@ export async function GET(req: NextRequest) {
         }
 
         const html = await attendanceRes.text();
-        const setCookie = attendanceRes.headers.get('set-cookie');
 
         const $ = cheerio.load(html);
 
@@ -44,7 +42,7 @@ export async function GET(req: NextRequest) {
                     subject: cols[1],
                     lectureType: cols[2],
                     teacher: cols[3],
-                    lectureTime: cols[4],
+                    lectureTime: cols[4].replace(/^Lecture Time\s*/i, '') || cols[4],
                     date: cols[5],
                     status: cols[6],
                 });
