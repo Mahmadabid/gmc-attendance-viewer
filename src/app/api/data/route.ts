@@ -83,26 +83,6 @@ export async function GET(req: NextRequest) {
             return NextResponse.json({ loggedIn: true, attendance: [] }, { status: 200 });
         }
 
-        // Always push dummy attendance for testing (online or offline)
-        attendance.push(
-            {
-                subject: 'Mathematics',
-                lectureType: 'Lecture',
-                teacher: 'Dr. Dummy',
-                lectureTime: '10:00 AM',
-                date: '2025-05-17',
-                status: 'Present',
-            },
-            {
-                subject: 'Physics',
-                lectureType: 'Lab',
-                teacher: 'Prof. Example',
-                lectureTime: '12:00 PM',
-                date: '2025-05-16',
-                status: 'Absent',
-            }
-        );
-
         return NextResponse.json({ loggedIn: true, attendance }, { status: 200 });
     } catch (error: any) {
         // Log error for debugging (optional: use a logger)
