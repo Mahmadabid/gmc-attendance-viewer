@@ -55,7 +55,10 @@ const Attendance: React.FC = () => {
       window.removeEventListener('offline', updateOnline);
     };
   }, []);
-    // Listen for background fetch messages from service worker
+  // Create a ref to track if we're currently processing a data update
+  const dataUpdateInProgress = React.useRef(false);
+  
+  // Listen for background fetch messages from service worker
   useEffect(() => {
     const handleMessage = (event: MessageEvent) => {
       console.log('Received message from service worker:', event.data);
@@ -67,9 +70,22 @@ const Attendance: React.FC = () => {
         console.log('Setting background fetching to FALSE');
         setIsBackgroundFetching(false);
       } else if (event.data && event.data.type === 'DATA_UPDATED') {
-        console.log('Data updated, refreshing component');
-        // When we receive new data, directly fetch the latest data
-        fetchAttendanceData();
+        console.log('Data updated, updating UI with cached data');
+        // When we receive new data, we'll just toggle getData to trigger the existing fetch effect
+        // But we need to avoid creating an infinite loop
+        if (!dataUpdateInProgress.current) {
+          dataUpdateInProgress.current = true;
+          // Use setTimeout to break the potential tight loop
+          setTimeout(() => {
+            setGetData(prev => !prev);
+            // Reset the flag after a reasonable delay to allow the fetch to complete
+            setTimeout(() => {
+              dataUpdateInProgress.current = false;
+            }, 3000); // 3 second cooldown before allowing another update
+          }, 100);
+        } else {
+          console.log('Update already in progress, ignoring duplicate update');
+        }
       }
     };
     
@@ -90,26 +106,6 @@ const Attendance: React.FC = () => {
     if ('serviceWorker' in navigator) {
       setupServiceWorker();
     }
-    
-    // Define function to fetch attendance data
-    const fetchAttendanceData = async () => {
-      console.log('Fetching attendance data...');
-      try {
-        const res = await fetch('/api/dummy', {
-          method: 'GET',
-          credentials: 'include',
-        });
-        if (!res.ok) throw new Error('Failed to fetch attendance');
-        const data = await res.json();
-
-        console.log('Data fetched successfully, updating component');
-        setLoggedIn(data.loggedIn);
-        setAttendance((data.attendance || []).slice().reverse());
-      } catch (err: any) {
-        console.error('Error fetching data:', err);
-        setError(err.message || 'Unknown error');
-      }
-    };
     
     return () => {
       navigator.serviceWorker.removeEventListener('message', handleMessage);
