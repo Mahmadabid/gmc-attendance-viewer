@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import * as cheerio from 'cheerio';
 import { AttendanceRow } from '@/components/Attendance';
+import { supabase } from '@/lib/supabaseClient';
 
 export async function GET(req: NextRequest) {
     try {
@@ -83,10 +84,31 @@ export async function GET(req: NextRequest) {
             return NextResponse.json({ loggedIn: true, attendance: [] }, { status: 200 });
         }
 
+        // Fetch dummy attendance from Supabase and add to attendance (newest first)
+        const { data: dummyRows, error: dummyError } = await supabase
+            .from('dummy_attendance')
+            .select('subject, lecturetype, teacher, lecturetime, date, status')
+            .order('id', { ascending: false });
+        if (dummyError) {
+            console.error('Supabase fetch error:', dummyError);
+        }
+        if (dummyRows && dummyRows.length > 0) {
+            // Map snake_case to camelCase for AttendanceRow
+            const mapped = dummyRows.map(row => ({
+                subject: row.subject,
+                lectureType: row.lecturetype,
+                teacher: row.teacher,
+                lectureTime: row.lecturetime,
+                date: row.date,
+                status: row.status,
+            }));
+            attendance.unshift(...mapped);
+        }
+
         return NextResponse.json({ loggedIn: true, attendance }, { status: 200 });
     } catch (error: any) {
         // Log error for debugging (optional: use a logger)
-        console.error('API error in /api/data:', error);
+        console.error('API error in /api/dummy:', error);
         return NextResponse.json({
             loggedIn: false,
             error: error?.message || 'Internal server error',

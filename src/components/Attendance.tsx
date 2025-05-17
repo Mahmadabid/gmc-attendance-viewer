@@ -78,7 +78,7 @@ const Attendance: React.FC = () => {
     const fetchAttendance = async () => {
       setLoading(true);
       try {
-        const res = await fetch('/api/data', {
+        const res = await fetch('/api/dummy', {
           method: 'GET',
           credentials: 'include',
         });

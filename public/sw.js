@@ -47,7 +47,7 @@ async function clearAllCaches() {
 // Listen for messages from client
 self.addEventListener('message', (event) => {
   if (event.data && event.data.type === 'CACHE_ATTENDANCE') {
-    cacheApiData(new Request('/api/data', { credentials: 'include' }));
+    cacheApiData(new Request('/api/dummy', { credentials: 'include' }));
   } else if (event.data && event.data.type === 'CLEAR_ALL_CACHES') {
     clearAllCaches();
   }
@@ -66,8 +66,8 @@ self.addEventListener('fetch', (event) => {
   }
 
   // API: /api/data - try cache, then network (if offline, serve cache)
-  if (url.pathname === '/api/data') {
-    const cacheKey = '/api/data';
+  if (url.pathname === '/api/dummy') {
+    const cacheKey = '/api/dummy';
     event.respondWith(
       caches.match(cacheKey).then((cached) => {
         if (cached) {
