@@ -67,15 +67,16 @@ self.addEventListener('fetch', (event) => {
 
   // API: /api/data - try cache, then network (if offline, serve cache)
   if (url.pathname === '/api/data') {
+    const cacheKey = '/api/data';
     event.respondWith(
-      caches.match(request).then((cached) => {
+      caches.match(cacheKey).then((cached) => {
         if (cached) {
           // Try network in background, but serve cache immediately
           fetch(request)
             .then((response) => {
               if (response.ok) {
                 caches.open(CACHE_NAME).then((cache) => {
-                  cache.put(request, response.clone());
+                  cache.put(cacheKey, response.clone());
                 });
               }
             })
@@ -87,7 +88,7 @@ self.addEventListener('fetch', (event) => {
             .then((response) => {
               if (response.ok) {
                 caches.open(CACHE_NAME).then((cache) => {
-                  cache.put(request, response.clone());
+                  cache.put(cacheKey, response.clone());
                 });
               }
               return response;
