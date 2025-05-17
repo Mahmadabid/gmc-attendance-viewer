@@ -33,6 +33,10 @@ const Login: React.FC<LoginProps> = ({setGetData}) => {
         setMessage('Login successful!');
         setMessageType('success');
         setGetData(prev => !prev);
+        // Notify SW to cache attendance data
+        if (navigator.serviceWorker && navigator.serviceWorker.controller) {
+          navigator.serviceWorker.controller.postMessage({ type: 'CACHE_ATTENDANCE' });
+        }
       } else {
         setMessage('Login failed: ' + (data.error || 'Unknown error'));
         setMessageType('error');

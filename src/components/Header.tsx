@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { EyeIcon, Cog6ToothIcon, PowerIcon } from "@heroicons/react/24/outline";
+import { Cog6ToothIcon, PowerIcon } from "@heroicons/react/24/outline";
 
 const navItems = [
     { name: "Settings", href: "/settings", icon: Cog6ToothIcon },
@@ -36,6 +36,10 @@ export default function Header() {
                         className="!p-2 rounded-full text-accent hover:text-white hover:bg-secondary/60 transition-colors flex items-center justify-center"
                         title="Logout"
                         onClick={async () => {
+                            // Notify SW to clear all caches
+                            if (navigator.serviceWorker && navigator.serviceWorker.controller) {
+                                navigator.serviceWorker.controller.postMessage({ type: 'CLEAR_ALL_CACHES' });
+                            }
                             await fetch('/api/logout');
                             window.location.reload();
                         }}
