@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import Spinner, { SimpleSpinner } from './Spinner';
+import Spinner from './Spinner';
 import SubjectFilterButtons from './attendance/SubjectFilterButtons';
 import AttendanceSummaryTable from './attendance/AttendanceSummaryTable';
 import AttendanceTable from './attendance/AttendanceTable';
@@ -43,7 +43,6 @@ const Attendance: React.FC = () => {
   const [quarters, setQuarters] = useState<Quarter[]>([]);
   const [getData, setGetData] = useState(false);
   const [isOnline, setIsOnline] = useState(true);
-  const [isFetching, setIsFetching] = useState(false);
 
   // Online/offline detection (move this above any conditional returns)
   useEffect(() => {
@@ -108,31 +107,6 @@ const Attendance: React.FC = () => {
       return isDateInRange(row.date, start, end);
     });
   }
-
-  // Listen for SW messages to track background fetch and cache update
-  useEffect(() => {
-    function handleSWMessage(event: MessageEvent) {
-      if (event.data && event.data.type === 'FETCH_DUMMY_START') {
-        setIsFetching(true);
-      } else if (event.data && event.data.type === 'FETCH_DUMMY_END') {
-        setIsFetching(false);
-      } else if (event.data && event.data.type === 'DUMMY_CACHE_UPDATED') {
-        // Only refresh if not already loading
-        setGetData(prev => {
-          if (!loading) return !prev;
-          return prev;
-        });
-      }
-    }
-    if (navigator.serviceWorker) {
-      navigator.serviceWorker.addEventListener('message', handleSWMessage);
-    }
-    return () => {
-      if (navigator.serviceWorker) {
-        navigator.serviceWorker.removeEventListener('message', handleSWMessage);
-      }
-    };
-  }, []);
 
   if (loading) return <div className='flex justify-center items-center min-h-[50vh]'><Spinner /></div>;
   if (error) return <div className="text-center mt-8 text-red-500">{error}</div>;
@@ -200,12 +174,11 @@ const Attendance: React.FC = () => {
           {/* Refresh or Offline button styled as icon button */}
           {isOnline ? (
             <button
-              className={`flex items-center gap-2 px-4 max-[520px]:px-2 py-2 rounded bg-accent text-white font-semibold hover:bg-secondary/80 transition-colors shadow-md ${isFetching ? 'opacity-80 cursor-not-allowed' : ''}`}
+              className="flex items-center gap-2 px-4 max-[520px]:px-2 py-2 rounded bg-accent text-white font-semibold hover:bg-secondary/80 transition-colors shadow-md"
               onClick={() => setGetData(prev => !prev)}
-              title={isFetching ? 'Refreshing...' : 'Refresh attendance'}
-              disabled={isFetching}
+              title="Refresh attendance"
             >
-              <ArrowPathIcon className={`w-6 h-6 ${isFetching ? 'animate-spin' : ''}`} />
+              <ArrowPathIcon className="w-6 h-6" />
               <span className="hidden min-[520px]:inline">Refresh</span>
             </button>
           ) : (

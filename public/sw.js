@@ -44,8 +44,6 @@ async function clearAllCaches() {
   await Promise.all(keys.map((key) => caches.delete(key)));
 }
 
-let isFetchingDummy = false;
-
 // Listen for messages from client
 self.addEventListener('message', (event) => {
   if (event.data && event.data.type === 'CACHE_ATTENDANCE') {
@@ -71,18 +69,8 @@ self.addEventListener('fetch', (event) => {
   if (url.pathname === '/api/dummy') {
     const cacheKey = '/api/dummy';
     event.respondWith(
-      (async () => {
-        const cached = await caches.match(cacheKey);
+      caches.match(cacheKey).then((cached) => {
         if (cached) {
-          // Notify client that fetch is starting
-          if (self.clients) {
-            self.clients.matchAll().then((clients) => {
-              clients.forEach((client) => {
-                client.postMessage({ type: 'FETCH_DUMMY_START' });
-              });
-            });
-          }
-          isFetchingDummy = true;
           // Try network in background, but serve cache immediately
           fetch(request)
             .then((response) => {
@@ -90,59 +78,24 @@ self.addEventListener('fetch', (event) => {
                 caches.open(CACHE_NAME).then((cache) => {
                   cache.put(cacheKey, response.clone());
                 });
-                // Notify clients to update UI after background refresh
-                if (self.clients) {
-                  self.clients.matchAll().then((clients) => {
-                    clients.forEach((client) => {
-                      client.postMessage({ type: 'DUMMY_CACHE_UPDATED' });
-                    });
-                  });
-                }
               }
             })
-            .finally(() => {
-              isFetchingDummy = false;
-              if (self.clients) {
-                self.clients.matchAll().then((clients) => {
-                  clients.forEach((client) => {
-                    client.postMessage({ type: 'FETCH_DUMMY_END' });
-                  });
-                });
-              }
-            });
+            .catch(() => {}); // Ignore network errors
           return cached;
         } else {
           // No cache, try network
-          try {
-            if (self.clients) {
-              self.clients.matchAll().then((clients) => {
-                clients.forEach((client) => {
-                  client.postMessage({ type: 'FETCH_DUMMY_START' });
+          return fetch(request)
+            .then((response) => {
+              if (response.ok) {
+                caches.open(CACHE_NAME).then((cache) => {
+                  cache.put(cacheKey, response.clone());
                 });
-              });
-            }
-            isFetchingDummy = true;
-            const response = await fetch(request);
-            if (response.ok) {
-              caches.open(CACHE_NAME).then((cache) => {
-                cache.put(cacheKey, response.clone());
-              });
-            }
-            return response;
-          } catch {
-            return new Response(JSON.stringify({ error: 'Offline and no cached data available', loggedIn: false }), { status: 503, headers: { 'Content-Type': 'application/json' } });
-          } finally {
-            isFetchingDummy = false;
-            if (self.clients) {
-              self.clients.matchAll().then((clients) => {
-                clients.forEach((client) => {
-                  client.postMessage({ type: 'FETCH_DUMMY_END' });
-                });
-              });
-            }
-          }
+              }
+              return response;
+            })
+            .catch(() => new Response(JSON.stringify({ error: 'Offline and no cached data available', loggedIn: false }), { status: 503, headers: { 'Content-Type': 'application/json' } }));
         }
-      })()
+      })
     );
     return;
   }
