@@ -102,7 +102,7 @@ export async function GET(req: NextRequest) {
                 date: row.date,
                 status: row.status,
             }));
-            attendance.unshift(...mapped);
+            attendance.push(...mapped); // Add to the bottom
         }
 
         return NextResponse.json({ loggedIn: true, attendance }, { status: 200 });
