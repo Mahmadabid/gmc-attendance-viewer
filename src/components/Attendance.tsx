@@ -109,13 +109,16 @@ const Attendance: React.FC = () => {
     });
   }
 
-  // Listen for SW messages to track background fetch
+  // Listen for SW messages to track background fetch and cache update
   useEffect(() => {
     function handleSWMessage(event: MessageEvent) {
       if (event.data && event.data.type === 'FETCH_DUMMY_START') {
         setIsFetching(true);
       } else if (event.data && event.data.type === 'FETCH_DUMMY_END') {
         setIsFetching(false);
+      } else if (event.data && event.data.type === 'DUMMY_CACHE_UPDATED') {
+        // Re-fetch attendance from cache after background update
+        setGetData(prev => !prev);
       }
     }
     if (navigator.serviceWorker) {

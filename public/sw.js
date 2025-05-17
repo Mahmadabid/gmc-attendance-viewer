@@ -90,6 +90,14 @@ self.addEventListener('fetch', (event) => {
                 caches.open(CACHE_NAME).then((cache) => {
                   cache.put(cacheKey, response.clone());
                 });
+                // Notify clients to update UI after background refresh
+                if (self.clients) {
+                  self.clients.matchAll().then((clients) => {
+                    clients.forEach((client) => {
+                      client.postMessage({ type: 'DUMMY_CACHE_UPDATED' });
+                    });
+                  });
+                }
               }
             })
             .finally(() => {
