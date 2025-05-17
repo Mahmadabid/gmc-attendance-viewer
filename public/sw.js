@@ -78,11 +78,18 @@ self.addEventListener('fetch', (event) => {
           });
           
           // Try network in background, but serve cache immediately
+          
           fetch(request)
             .then((response) => {
               if (response.ok) {
                 caches.open(CACHE_NAME).then((cache) => {
                   cache.put(cacheKey, response.clone());
+                  // Notify clients that new data is available
+                  self.clients.matchAll().then(clients => {
+                    clients.forEach(client => {
+                      client.postMessage({ type: 'DATA_UPDATED' });
+                    });
+                  });
                 });
               }
               
@@ -109,6 +116,12 @@ self.addEventListener('fetch', (event) => {
               if (response.ok) {
                 caches.open(CACHE_NAME).then((cache) => {
                   cache.put(cacheKey, response.clone());
+                  // Notify clients that new data is available
+                  self.clients.matchAll().then(clients => {
+                    clients.forEach(client => {
+                      client.postMessage({ type: 'DATA_UPDATED' });
+                    });
+                  });
                 });
               }
               return response;

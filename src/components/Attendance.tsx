@@ -55,18 +55,61 @@ const Attendance: React.FC = () => {
       window.removeEventListener('offline', updateOnline);
     };
   }, []);
-  
-  // Listen for background fetch messages from service worker
+    // Listen for background fetch messages from service worker
   useEffect(() => {
     const handleMessage = (event: MessageEvent) => {
+      console.log('Received message from service worker:', event.data);
+      
       if (event.data && event.data.type === 'BACKGROUND_FETCH_START') {
+        console.log('Setting background fetching to TRUE');
         setIsBackgroundFetching(true);
       } else if (event.data && event.data.type === 'BACKGROUND_FETCH_COMPLETE') {
+        console.log('Setting background fetching to FALSE');
         setIsBackgroundFetching(false);
+      } else if (event.data && event.data.type === 'DATA_UPDATED') {
+        console.log('Data updated, refreshing component');
+        // When we receive new data, directly fetch the latest data
+        fetchAttendanceData();
       }
     };
     
-    navigator.serviceWorker.addEventListener('message', handleMessage);
+    // Function to set up the event listener
+    const setupServiceWorker = async () => {
+      // First, ensure we're listening at navigator.serviceWorker level
+      navigator.serviceWorker.addEventListener('message', handleMessage);
+      
+      // Also try to set up a listener on the active service worker registration
+      if (navigator.serviceWorker.controller) {
+        console.log('Service worker controller exists');
+      } else {
+        console.log('No service worker controller found');
+      }
+    };
+    
+    // Set up the service worker listeners
+    if ('serviceWorker' in navigator) {
+      setupServiceWorker();
+    }
+    
+    // Define function to fetch attendance data
+    const fetchAttendanceData = async () => {
+      console.log('Fetching attendance data...');
+      try {
+        const res = await fetch('/api/dummy', {
+          method: 'GET',
+          credentials: 'include',
+        });
+        if (!res.ok) throw new Error('Failed to fetch attendance');
+        const data = await res.json();
+
+        console.log('Data fetched successfully, updating component');
+        setLoggedIn(data.loggedIn);
+        setAttendance((data.attendance || []).slice().reverse());
+      } catch (err: any) {
+        console.error('Error fetching data:', err);
+        setError(err.message || 'Unknown error');
+      }
+    };
     
     return () => {
       navigator.serviceWorker.removeEventListener('message', handleMessage);
