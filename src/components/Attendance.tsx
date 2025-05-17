@@ -8,7 +8,7 @@ import AttendanceTable from './attendance/AttendanceTable';
 import QuarterFilterButtons from './attendance/QuarterFilterButtons';
 import Login from './Login';
 import { isDateInRange } from './lib/dateUtils';
-import { ArrowPathIcon } from '@heroicons/react/24/outline';
+import { ArrowPathIcon, WifiIcon } from '@heroicons/react/24/outline';
 
 export interface AttendanceRow {
   subject: string;
@@ -42,6 +42,19 @@ const Attendance: React.FC = () => {
   const [selectedQuarterIdx, setSelectedQuarterIdx] = useState<number>(-1); // -1 means whole year
   const [quarters, setQuarters] = useState<Quarter[]>([]);
   const [getData, setGetData] = useState(false);
+  const [isOnline, setIsOnline] = useState(true);
+
+  // Online/offline detection (move this above any conditional returns)
+  useEffect(() => {
+    const updateOnline = () => setIsOnline(navigator.onLine);
+    window.addEventListener('online', updateOnline);
+    window.addEventListener('offline', updateOnline);
+    updateOnline();
+    return () => {
+      window.removeEventListener('online', updateOnline);
+      window.removeEventListener('offline', updateOnline);
+    };
+  }, []);
 
   // Load quarters from localStorage on mount and when quarters change
   useEffect(() => {
@@ -158,15 +171,22 @@ const Attendance: React.FC = () => {
       <div className="flex justify-center mb-4">
         <div className="flex flex-row items-center gap-4">
           <h1 className="text-4xl font-bold text-secondary text-center">Attendance</h1>
-          {/* Refresh button styled as icon button */}
-          <button
-            className="flex items-center gap-2 px-4 max-[520px]:px-2 py-2 rounded bg-accent text-white font-semibold hover:bg-secondary/80 transition-colors shadow-md"
-            onClick={() => setGetData(prev => !prev)}
-            title="Refresh attendance"
-          >
-            <ArrowPathIcon className="w-6 h-6" />
-            <span className="hidden min-[520px]:inline">Refresh</span>
-          </button>
+          {/* Refresh or Offline button styled as icon button */}
+          {isOnline ? (
+            <button
+              className="flex items-center gap-2 px-4 max-[520px]:px-2 py-2 rounded bg-accent text-white font-semibold hover:bg-secondary/80 transition-colors shadow-md"
+              onClick={() => setGetData(prev => !prev)}
+              title="Refresh attendance"
+            >
+              <ArrowPathIcon className="w-6 h-6" />
+              <span className="hidden min-[520px]:inline">Refresh</span>
+            </button>
+          ) : (
+            <div className="flex items-center gap-2 px-4 max-[520px]:px-2 py-2 rounded bg-red-400 text-white font-semibold shadow-md cursor-not-allowed select-none" title="Offline mode">
+              <WifiIcon className="w-6 h-6" />
+              <span className="hidden min-[520px]:inline">Offline</span>
+            </div>
+          )}
         </div>
       </div>
 
