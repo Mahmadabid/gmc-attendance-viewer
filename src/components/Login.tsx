@@ -6,10 +6,10 @@ import { useIsOnline } from './lib/context/IsOnlineContext';
 import { ExclamationTriangleIcon } from '@heroicons/react/16/solid';
 
 interface LoginProps {
-  setGetData: React.Dispatch<React.SetStateAction<boolean>>;
+  onRefresh: () => void;
 }
 
-const Login: React.FC<LoginProps> = ({ setGetData }) => {
+const Login: React.FC<LoginProps> = ({ onRefresh }) => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -36,13 +36,7 @@ const Login: React.FC<LoginProps> = ({ setGetData }) => {
       if (data.success) {
         setMessage('Login successful!');
         setMessageType('success');
-        // // Clear all caches
-        // if ('caches' in window) {
-        //   caches.keys().then(keys => {
-        //     keys.forEach(key => caches.delete(key));
-        //   });
-        // }
-        setGetData(prev => !prev);
+        onRefresh();
         // Notify SW to cache attendance data
         if (navigator.serviceWorker && navigator.serviceWorker.controller) {
           navigator.serviceWorker.controller.postMessage({ type: 'CACHE_ATTENDANCE' });

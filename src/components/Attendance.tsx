@@ -44,7 +44,7 @@ const Attendance: React.FC = () => {
   const [selectedSubject, setSelectedSubject] = useState<string | null>(null);
   const [selectedQuarterIdx, setSelectedQuarterIdx] = useState<number>(-1); // -1 means whole year
   const [quarters, setQuarters] = useState<Quarter[]>([]);
-  const [getData, setGetData] = useState(false);
+  const [refreshCount, setRefreshCount] = useState(0);
   const isOnline = useIsOnline();
 
   // Load quarters from localStorage on mount and when quarters change
@@ -67,11 +67,8 @@ const Attendance: React.FC = () => {
     const fetchAttendance = async () => {
       setLoading(true);
       try {
-          console.log('asd')
-  console.log(getData)
-        // Add refresh=true parameter to force network fetch when refresh button is clicked
-        const refreshParam = getData ? '?refresh=true' : '';
-
+        // Always add refresh=true when refresh button is pressed
+        const refreshParam = refreshCount > 0 ? '?refresh=true' : '';
         const res = await fetch(`${FetchURL}${refreshParam}`, {
           method: 'GET',
           credentials: 'include',
@@ -87,11 +84,10 @@ const Attendance: React.FC = () => {
         setError(err.message || 'Unknown error');
       } finally {
         setLoading(false);
-        console.log('dsa')
       }
     };
     fetchAttendance();
-  }, [getData]);
+  }, [refreshCount]);
 
   // Filter attendance by quarter if quarters are present
   let attendanceInQuarter = attendance;
@@ -107,7 +103,7 @@ const Attendance: React.FC = () => {
 
   if (loading) return <div className='flex justify-center items-center min-h-[50vh]'><Spinner /></div>;
   if (error) return <div className="text-center mt-8 text-red-500">{error}</div>;
-  if (!loggedIn) return <Login setGetData={setGetData} />;
+  if (!loggedIn) return <Login onRefresh={() => setRefreshCount(c => c + 1)} />;
 
   // Calculate stats
   const totalLectures = attendanceInQuarter.length;
@@ -178,7 +174,7 @@ const Attendance: React.FC = () => {
           {isOnline ? (
             <button
               className="flex items-center gap-2 px-4 max-[520px]:px-2 py-2 rounded bg-accent text-white font-semibold hover:bg-secondary/80 transition-colors shadow-md"
-              onClick={() => setGetData(prev => !prev)}
+              onClick={() => setRefreshCount(c => c + 1)}
               title="Refresh attendance"
             >
               <ArrowPathIcon className="w-6 h-6" />
