@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Cog6ToothIcon, PowerIcon } from "@heroicons/react/24/outline";
-import { useIsOnline } from "./IsOnlineContext";
+import { useIsOnline } from "./lib/context/IsOnlineContext";
 
 const navItems = [
     { name: "Settings", href: "/settings", icon: Cog6ToothIcon },
@@ -12,6 +12,7 @@ const navItems = [
 export default function Header() {
     const pathname = usePathname();
     const isOnline = useIsOnline();
+
     return (
         <header className="w-full bg-background shadow-lg sticky top-0 z-50 border-b border-secondary/40">
             <nav className="max-w-4xl mx-auto flex items-center justify-between max-[500px]:px-2 max-[460px]:px-1 px-4 py-3 sm:py-4 min-h-[56px]">

@@ -9,7 +9,7 @@ import QuarterFilterButtons from './attendance/QuarterFilterButtons';
 import Login from './Login';
 import { isDateInRange } from './lib/dateUtils';
 import { ArrowPathIcon, WifiIcon } from '@heroicons/react/24/outline';
-import { useIsOnline } from './IsOnlineContext';
+import { useIsOnline } from './lib/context/IsOnlineContext';
 import { ExclamationTriangleIcon } from '@heroicons/react/24/solid';
 import { FetchURL } from './lib/utils';
 

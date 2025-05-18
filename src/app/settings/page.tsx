@@ -1,6 +1,6 @@
 'use client';
 
-import { useIsOnline } from "@/components/IsOnlineContext";
+import { useIsOnline } from "@/components/lib/context/IsOnlineContext";
 import SettingsForm from "@/components/settings/SettingsForm";
 import { ArrowUturnLeftIcon, ExclamationTriangleIcon } from "@heroicons/react/16/solid";
 

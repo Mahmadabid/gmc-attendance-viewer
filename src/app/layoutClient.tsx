@@ -4,7 +4,7 @@ import Header from "../components/Header";
 import { Analytics } from "@vercel/analytics/next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { useEffect, useState } from "react";
-import { IsOnlineProvider } from "../components/IsOnlineContext";
+import { IsOnlineProvider } from "../components/lib/context/IsOnlineContext";
 
 const geistSans = Geist({
     variable: "--font-geist-sans",
@@ -115,7 +115,6 @@ export default function RootLayoutClient({
                 className={`${geistSans.variable} ${geistMono.variable} antialiased`}
             >
                 <Analytics />
-                <Header />
                 {isIOS && (
                     <>
                         <button
@@ -157,7 +156,8 @@ export default function RootLayoutClient({
                     </button>
                 )}
                 <IsOnlineProvider>
-                  {children}
+                    <Header />
+                    {children}
                 </IsOnlineProvider>
                 <div className="h-[70px]"></div>
             </body>
