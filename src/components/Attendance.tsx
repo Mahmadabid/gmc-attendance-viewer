@@ -63,13 +63,13 @@ const Attendance: React.FC = () => {
     const handler = () => loadQuarters();
     window.addEventListener('quarters-changed', handler);
     return () => window.removeEventListener('quarters-changed', handler);
-  }, []);  useEffect(() => {
+  }, []); useEffect(() => {
     const fetchAttendance = async () => {
       setLoading(true);
-      try {        // When getData changes, it's because the refresh button was clicked
+      try {
         // Add refresh=true parameter to force network fetch when refresh button is clicked
         const refreshParam = getData ? '?refresh=true' : '';
-        
+
         const res = await fetch(`${FetchURL}${refreshParam}`, {
           method: 'GET',
           credentials: 'include',
@@ -175,7 +175,10 @@ const Attendance: React.FC = () => {
           {isOnline ? (
             <button
               className="flex items-center gap-2 px-4 max-[520px]:px-2 py-2 rounded bg-accent text-white font-semibold hover:bg-secondary/80 transition-colors shadow-md"
-              onClick={() => setGetData(prev => !prev)}
+              onClick={() => {
+                setGetData(prev => !prev);
+                setTimeout(() => setGetData(prev => !prev), 0);
+              }}
               title="Refresh attendance"
             >
               <ArrowPathIcon className="w-6 h-6" />
