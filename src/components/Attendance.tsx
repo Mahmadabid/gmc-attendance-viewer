@@ -78,10 +78,9 @@ const Attendance: React.FC = () => {
           shouldFetch = true;
         }
         let url = FetchURL;
-        if (shouldFetch && refreshCount > 0) {
+        // Always add ?refresh=true if shouldFetch is true (either first load or refresh)
+        if (shouldFetch) {
           url += '?refresh=true';
-        } else if (shouldFetch && fetchFlag === FetchStatus.true) {
-          // On reload, do not add refresh param, just force fetch
         }
         const res = await fetch(url, {
           method: 'GET',
