@@ -78,38 +78,23 @@ const Attendance: React.FC = () => {
     const fetchAttendance = async () => {
       setLoading(true);
       try {
-        // Always use a normal fetch; service worker will serve cache if offline
         const res = await fetch('/api/dummy', {
           method: 'GET',
           credentials: 'include',
         });
         if (!res.ok) throw new Error('Failed to fetch attendance');
         const data = await res.json();
+
         setLoggedIn(data.loggedIn);
         setAttendance((data.attendance || []).slice().reverse());
-        setError(null);
       } catch (err: any) {
-        setError('Failed to fetch attendance (offline and no cache)');
+        setError(err.message || 'Unknown error');
       } finally {
         setLoading(false);
       }
     };
     fetchAttendance();
-  }, [getData]); // Remove isOnline from dependencies
-
-  // Listen for service worker update for /api/dummy
-  useEffect(() => {
-    if ('serviceWorker' in navigator) {
-      const handler = (event: MessageEvent) => {
-        if (event.data && event.data.type === 'API_DUMMY_UPDATED') {
-          // Re-fetch attendance data when background update is available
-          setGetData(prev => !prev);
-        }
-      };
-      navigator.serviceWorker.addEventListener('message', handler);
-      return () => navigator.serviceWorker.removeEventListener('message', handler);
-    }
-  }, []);
+  }, [getData]);
 
   // Filter attendance by quarter if quarters are present
   let attendanceInQuarter = attendance;
@@ -183,6 +168,11 @@ const Attendance: React.FC = () => {
 
   return (
     <div className="mt-8 mx-1 mb-4">
+      {!isOnline && (
+        <div className="text-center text-yellow-700 bg-yellow-100 border border-yellow-300 rounded p-2 mb-6 font-semibold">
+          You are in offline mode. Data may be outdated.
+        </div>
+      )}
       <div className="flex justify-center mb-4">
         <div className="flex flex-row items-center gap-4">
           <h1 className="text-4xl font-bold text-secondary text-center">Attendance</h1>
