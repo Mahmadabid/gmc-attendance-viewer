@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import RootLayoutClient from "./layoutClient";
+import { QuartersProvider } from "@/components/lib/QuartersContext";
 
 export const metadata: Metadata = {
   title: "GMC Attendance Viewer",
@@ -50,5 +51,9 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  return <RootLayoutClient>{children}</RootLayoutClient>;
+  return (
+    <QuartersProvider>
+      <RootLayoutClient>{children}</RootLayoutClient>
+    </QuartersProvider>
+  );
 }

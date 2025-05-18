@@ -9,6 +9,7 @@ import QuarterFilterButtons from './attendance/QuarterFilterButtons';
 import Login from './Login';
 import { isDateInRange } from './lib/dateUtils';
 import { ArrowPathIcon, WifiIcon } from '@heroicons/react/24/outline';
+import { useQuarters } from "./lib/QuartersContext";
 
 export interface AttendanceRow {
   subject: string;
@@ -17,11 +18,6 @@ export interface AttendanceRow {
   lectureTime: string;
   date: string;
   status: string;
-}
-
-interface Quarter {
-  start: string; // ISO date string
-  end: string;   // ISO date string
 }
 
 const keyMap = {
@@ -40,7 +36,7 @@ const Attendance: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [selectedSubject, setSelectedSubject] = useState<string | null>(null);
   const [selectedQuarterIdx, setSelectedQuarterIdx] = useState<number>(-1); // -1 means whole year
-  const [quarters, setQuarters] = useState<Quarter[]>([]);
+  const { quarters, reloadQuarters } = useQuarters();
   const [getData, setGetData] = useState(false);
   const [isOnline, setIsOnline] = useState(true);
 
@@ -54,26 +50,6 @@ const Attendance: React.FC = () => {
       window.removeEventListener('online', updateOnline);
       window.removeEventListener('offline', updateOnline);
     };
-  }, []);
-
-  // Load quarters from localStorage on mount and when quarters change
-  useEffect(() => {
-    const loadQuarters = () => {
-      const stored = localStorage.getItem('quarters');
-      if (!stored) return;
-      try {
-        const parsed = JSON.parse(stored);
-        if (Array.isArray(parsed)) {
-          // always create a new array reference
-          setQuarters([...parsed]);
-        }
-      } catch { }
-    };
-    loadQuarters();
-    // Listen for quarters-changed event
-    const handler = () => loadQuarters();
-    window.addEventListener('quarters-changed', handler);
-    return () => window.removeEventListener('quarters-changed', handler);
   }, []);
 
   useEffect(() => {

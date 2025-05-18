@@ -4,9 +4,10 @@ import { TrashIcon } from "@heroicons/react/24/outline";
 import { useEffect, useState } from "react";
 import Spinner from "../Spinner";
 import { PlusCircleIcon } from "@heroicons/react/16/solid";
+import { useQuarters } from "../lib/QuartersContext";
 
 export default function SettingsForm() {
-  const [quarters, setQuarters] = useState<{ start: string; end: string }[]>([]);
+  const { quarters, setQuarters, reloadQuarters } = useQuarters();
   const [loading, setLoading] = useState(true);
   const [skipFirstStart, setSkipFirstStart] = useState(true);
   const [skipLastEnd, setSkipLastEnd] = useState(true);
@@ -15,17 +16,9 @@ export default function SettingsForm() {
   const [deleted, setDeleted] = useState(false);
 
   useEffect(() => {
-    const stored = localStorage.getItem("quarters");
-    if (stored) {
-      try {
-        const parsed = JSON.parse(stored);
-        if (Array.isArray(parsed)) {
-          setQuarters(parsed);
-        }
-      } catch { }
-    }
+    reloadQuarters();
     setLoading(false);
-  }, []);
+  }, [reloadQuarters]);
 
   function getNextDay(dateStr: string) {
     if (!dateStr) return "";
