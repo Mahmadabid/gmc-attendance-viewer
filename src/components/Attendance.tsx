@@ -69,26 +69,17 @@ const Attendance: React.FC = () => {
     const fetchAttendance = async () => {
       setLoading(true);
       try {
-        // Determine if we should fetch from server or use cache
-        let shouldFetch = true;
-        const fetchFlag = sessionStorage.getItem('fetch');
-        if (refreshCount > 0) {
-          shouldFetch = true;
-        } else if (fetchFlag === FetchStatus.true) {
-          shouldFetch = true;
-        }
-        let url = FetchURL;
-        // Always add ?refresh=true if shouldFetch is true (either first load or refresh)
-        if (shouldFetch) {
-          url += '?refresh=true';
-        }
-        const res = await fetch(url, {
+        // Always add refresh=true when refresh button is pressed
+        const refreshParam = refreshCount > 0 ? '?refresh=true' : '';
+        const res = await fetch(`${FetchURL}${refreshParam}`, {
           method: 'GET',
           credentials: 'include',
-          cache: shouldFetch ? 'no-cache' : 'default',
+          // Always use no-cache to ensure service worker intercepts the request
+          cache: 'no-cache',
         });
         if (!res.ok) throw new Error('Failed to fetch attendance');
         const data = await res.json();
+
         sessionStorage.setItem('fetch', FetchStatus.false);
         setLoggedIn(data.loggedIn);
         setAttendance((data.attendance || []).slice().reverse());

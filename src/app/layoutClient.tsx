@@ -5,7 +5,6 @@ import { Analytics } from "@vercel/analytics/next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { useEffect, useState } from "react";
 import { IsOnlineProvider } from "../components/lib/context/IsOnlineContext";
-import { FetchStatus } from "@/components/lib/utils";
 
 const geistSans = Geist({
     variable: "--font-geist-sans",
@@ -81,16 +80,6 @@ export default function RootLayoutClient({
             window.removeEventListener('pwaInstallReady', handleInstallReady);
             window.removeEventListener("appinstalled", appInstalledHandler);
         };
-    }, []);
-
-
-    // Only set fetch=true on first ever visit, not on every reload
-    useEffect(() => {
-        if (sessionStorage.getItem('fetch') === null) {
-            sessionStorage.setItem('fetch', FetchStatus.true);
-            // Set a random integer between 0 and 100 as a string
-            sessionStorage.setItem('randomNumber', Math.floor(Math.random() * 101).toString());
-        }
     }, []);
 
     const handleInstallClick = async () => {
