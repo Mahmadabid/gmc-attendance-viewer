@@ -60,12 +60,14 @@ const Attendance: React.FC = () => {
   useEffect(() => {
     const loadQuarters = () => {
       const stored = localStorage.getItem('quarters');
-      if (stored) {
-        try {
-          const parsed = JSON.parse(stored);
-          if (Array.isArray(parsed)) setQuarters(parsed);
-        } catch { }
-      }
+      if (!stored) return;
+      try {
+        const parsed = JSON.parse(stored);
+        if (Array.isArray(parsed)) {
+          // always create a new array reference
+          setQuarters([...parsed]);
+        }
+      } catch { }
     };
     loadQuarters();
     // Listen for quarters-changed event

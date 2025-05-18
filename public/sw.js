@@ -1,10 +1,10 @@
 // public/sw.js
-const STATIC_CACHE   = 'static-cache-v1';
-const DATA_CACHE     = 'data-cache-v1';
+const STATIC_CACHE = 'static-cache-v1';
+const DATA_CACHE = 'data-cache-v1';
 
 // List all the URLs you need for offline — pages + public assets
 const STATIC_FILES = [
-  '/', 
+  '/',
   '/settings',
   '/logo.png',
   '/logo-144.png',
