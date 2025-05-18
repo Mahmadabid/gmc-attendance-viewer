@@ -75,25 +75,47 @@ const Attendance: React.FC = () => {
   }, []);
 
   useEffect(() => {
+    let controller = new AbortController();
+    setLoading(true);
+    setError(null);
     const fetchAttendance = async () => {
-      setLoading(true);
       try {
+        const isRefresh = getData; // true if triggered by refresh button
+        const headers: Record<string, string> = {};
+        if (isRefresh) {
+          headers['X-Force-Refresh'] = 'true';
+        }
         const res = await fetch('/api/dummy', {
           method: 'GET',
           credentials: 'include',
+          headers,
+          signal: controller.signal,
         });
         if (!res.ok) throw new Error('Failed to fetch attendance');
         const data = await res.json();
-
         setLoggedIn(data.loggedIn);
         setAttendance((data.attendance || []).slice().reverse());
       } catch (err: any) {
-        setError(err.message || 'Unknown error');
+        if (err.name !== 'AbortError') {
+          setError(err.message || 'Unknown error');
+        }
       } finally {
         setLoading(false);
       }
     };
+
     fetchAttendance();
+    // Listen for SW update message (background update)
+    function handleSWMessage(event: MessageEvent) {
+      if (event.data && event.data.type === 'attendance-updated') {
+        fetchAttendance();
+      }
+    }
+    navigator.serviceWorker?.addEventListener('message', handleSWMessage);
+    return () => {
+      controller.abort();
+      navigator.serviceWorker?.removeEventListener('message', handleSWMessage);
+    };
   }, [getData]);
 
   // Filter attendance by quarter if quarters are present
