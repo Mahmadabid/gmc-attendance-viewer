@@ -64,15 +64,70 @@ export default function SettingsForm() {
     setDeleted(true);
   };
 
-  // Placeholder import handler
+  // Import handler
   const handleImport = (e: React.ChangeEvent<HTMLInputElement>) => {
-    // TODO: implement import functionality
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      try {
+        const text = event.target?.result as string;
+        const imported = JSON.parse(text);
+        if (Array.isArray(imported) && imported.every(q => typeof q.start === 'string' && typeof q.end === 'string')) {
+          setQuarters(imported);
+          setSaved(false);
+          setError("");
+        } else {
+          setError("Invalid file format. Please select a valid quarters JSON file.");
+        }
+      } catch {
+        setError("Failed to import. Invalid JSON file.");
+      }
+    };
+    reader.readAsText(file);
     e.target.value = "";
   };
 
-  // Placeholder export handler
+  // Export handler
   const handleExport = () => {
-    // TODO: implement export functionality
+    if (quarters.length === 0) {
+      setError("No quarters to export.");
+      return;
+    }
+    if (quarters.length === 1) {
+      if (!quarters[0].end) {
+        setError("End date for Quarter 1 is required.");
+        return;
+      }
+    } else {
+      for (let i = 0; i < quarters.length; i++) {
+        if (i !== 0 && !quarters[i].start && !skipFirstStart) {
+          setError(`Start date for Quarter ${i + 1} is required.`);
+          return;
+        }
+        if (i !== quarters.length - 1 && !quarters[i].end) {
+          setError(`End date for Quarter ${i + 1} is required.`);
+          return;
+        }
+      }
+    }
+    setError("");
+    try {
+      const data = JSON.stringify(quarters, null, 2);
+      const blob = new Blob([data], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'quarters.json';
+      document.body.appendChild(a);
+      a.click();
+      setTimeout(() => {
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      }, 0);
+    } catch {
+      setError("Failed to export quarters.");
+    }
   };
 
   const broadcastQuartersChange = () => {
