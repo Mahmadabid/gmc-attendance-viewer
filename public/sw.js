@@ -1,42 +1,69 @@
-const CACHE_NAME = 'attendance-cache-v1';
-const API_URL = '/api/dummy';
+// public/sw.js
+const STATIC_CACHE   = 'static-cache-v1';
+const DATA_CACHE     = 'data-cache-v1';
 
-self.addEventListener('install', (event) => {
-  console.log('Service Worker installing.');
+// List all the URLs you need for offline — pages + public assets
+const STATIC_FILES = [
+  '/', 
+  '/settings',
+  '/logo.png',
+  '/logo-144.png',
+  // add here any other static file paths you use (fonts, CSS, etc.)
+];
+
+self.addEventListener('install', evt => {
+  evt.waitUntil(
+    caches.open(STATIC_CACHE)
+      .then(cache => cache.addAll(STATIC_FILES))
+      .then(() => self.skipWaiting())
+  );
 });
 
-self.addEventListener('activate', (event) => {
-  console.log('Service Worker activating.');
+self.addEventListener('activate', evt => {
+  // clean up old caches
+  evt.waitUntil(
+    caches.keys().then(keys =>
+      Promise.all(
+        keys
+          .filter(key => key !== STATIC_CACHE && key !== DATA_CACHE)
+          .map(key => caches.delete(key))
+      )
+    ).then(() => self.clients.claim())
+  );
 });
 
-self.addEventListener('fetch', (event) => {
-  const { request } = event;
+self.addEventListener('fetch', evt => {
+  const { request } = evt;
+  const url = new URL(request.url);
 
-  if (request.method === 'GET' && new URL(request.url).pathname === API_URL) {
-    event.respondWith(
-      caches.open(CACHE_NAME).then(async (cache) => {
-        try {
-          // Try network first
-          const networkResponse = await fetch(request);
-          // Clone and store in cache
-          cache.put(request, networkResponse.clone());
-          return networkResponse;
-        } catch (err) {
-          // If offline or fetch fails, try cache
-          const cachedResponse = await cache.match(request);
-          if (cachedResponse) {
-            return cachedResponse;
-          }
-          // If not in cache, return a fallback response
-          return new Response(JSON.stringify({ loggedIn: false, attendance: [] }), {
-            status: 200,
-            headers: { 'Content-Type': 'application/json' },
-          });
-        }
-      })
+  // 1) API requests to /api/dummy — network-first, cache fallback
+  if (url.pathname === '/api/dummy') {
+    evt.respondWith(
+      caches.open(DATA_CACHE).then(cache =>
+        fetch(request)
+          .then(res => {
+            // clone & store in cache
+            cache.put(request, res.clone());
+            return res;
+          })
+          .catch(() =>
+            cache.match(request)
+          )
+      )
     );
-  } else {
-    // For all other requests, use default fetch
-    event.respondWith(fetch(request));
+    return;
   }
+
+  // 2) All other GET requests from our STATIC_FILES — cache-first
+  if (request.method === 'GET' && STATIC_FILES.includes(url.pathname)) {
+    evt.respondWith(
+      caches.match(request).then(cached =>
+        cached || fetch(request)
+      )
+    );
+    return;
+  }
+
+  // 3) Let everything else go to network
+  evt.respondWith(fetch(request));
 });
