@@ -9,4 +9,9 @@ export function updateCookieMaxAgeAndExpires(setCookie: string, days: number): s
         .replace(/expires=[^;]+;/i, `expires=${newExpires};`);
 }
 
-export const FetchURL = '/api/dummy'
+export const FetchURL = '/api/dummy';
+
+export enum FetchStatus {
+    true = 'true',
+    false = 'false',
+}

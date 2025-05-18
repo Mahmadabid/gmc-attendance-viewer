@@ -5,6 +5,7 @@ import { Analytics } from "@vercel/analytics/next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { useEffect, useState } from "react";
 import { IsOnlineProvider } from "../components/lib/context/IsOnlineContext";
+import { FetchStatus } from "@/components/lib/utils";
 
 const geistSans = Geist({
     variable: "--font-geist-sans",
@@ -82,12 +83,13 @@ export default function RootLayoutClient({
         };
     }, []);
 
-    
-  // Store a random number from 1 to 100 in sessionStorage on mount
-  useEffect(() => {
-    const randomNum = Math.floor(Math.random() * 100) + 1;
-    sessionStorage.setItem('randomNumber', randomNum.toString());
-  }, []);
+
+    // Only set fetch=true on first ever visit, not on every reload
+    useEffect(() => {
+        if (sessionStorage.getItem('fetch') === null) {
+            sessionStorage.setItem('fetch', FetchStatus.true);
+        }
+    }, []);
 
     const handleInstallClick = async () => {
         const promptEvent = deferredPrompt || window.deferredPWAInstallPrompt;

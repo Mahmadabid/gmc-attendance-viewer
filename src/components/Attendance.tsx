@@ -11,7 +11,7 @@ import { isDateInRange } from './lib/dateUtils';
 import { ArrowPathIcon, WifiIcon } from '@heroicons/react/24/outline';
 import { useIsOnline } from './lib/context/IsOnlineContext';
 import { ExclamationTriangleIcon } from '@heroicons/react/24/solid';
-import { FetchURL } from './lib/utils';
+import { FetchStatus, FetchURL } from './lib/utils';
 
 export interface AttendanceRow {
   subject: string;
@@ -69,17 +69,28 @@ const Attendance: React.FC = () => {
     const fetchAttendance = async () => {
       setLoading(true);
       try {
-        // Always add refresh=true when refresh button is pressed
-        const refreshParam = refreshCount > 0 ? '?refresh=true' : '';
-        const res = await fetch(`${FetchURL}${refreshParam}`, {
+        // Determine if we should fetch from server or use cache
+        let shouldFetch = false;
+        const fetchFlag = sessionStorage.getItem('fetch');
+        if (refreshCount > 0) {
+          shouldFetch = true;
+        } else if (fetchFlag === FetchStatus.true) {
+          shouldFetch = true;
+        }
+        let url = FetchURL;
+        if (shouldFetch && refreshCount > 0) {
+          url += '?refresh=true';
+        } else if (shouldFetch && fetchFlag === FetchStatus.true) {
+          // On reload, do not add refresh param, just force fetch
+        }
+        const res = await fetch(url, {
           method: 'GET',
           credentials: 'include',
-          // Always use no-cache to ensure service worker intercepts the request
-          cache: 'no-cache',
+          cache: shouldFetch ? 'no-cache' : 'default',
         });
         if (!res.ok) throw new Error('Failed to fetch attendance');
         const data = await res.json();
-
+        sessionStorage.setItem('fetch', FetchStatus.false);
         setLoggedIn(data.loggedIn);
         setAttendance((data.attendance || []).slice().reverse());
       } catch (err: any) {
