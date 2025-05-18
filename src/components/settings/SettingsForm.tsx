@@ -5,6 +5,9 @@ import { PlusCircleIcon, ArrowDownOnSquareIcon, ArrowUpOnSquareIcon, ArrowPathIc
 import { useEffect, useState, useCallback } from "react";
 import Spinner from "../Spinner";
 import { motion, AnimatePresence } from "framer-motion";
+import QuarterHeader from "./QuarterHeader";
+import QuarterList from "./QuarterList";
+import QuarterEmptyState from "./QuarterEmptyState";
 
 export default function SettingsForm() {
   const [quarters, setQuarters] = useState<{ start: string; end: string }[]>([]);
@@ -175,141 +178,21 @@ export default function SettingsForm() {
   return (
     <form className="flex flex-col gap-6 w-full max-w-xl" onSubmit={handleSave}>
       {/* Quarters Header */}
-      <div className="flex justify-between items-center">
-        <h2 className="text-lg font-semibold text-primary">Quarter Management</h2>
-        <div className="flex gap-2">
-          <label className="group cursor-pointer px-3 py-1.5 flex items-center gap-1.5 rounded bg-white text-primary border border-blue-400 hover:bg-blue-500 hover:text-white transition-colors">
-            <ArrowDownOnSquareIcon className="w-4 h-4 text-blue-500 group-hover:text-white transition-colors" />
-            <span>Import</span>
-            <input type="file" accept=".json" className="hidden" onChange={handleImport} />
-          </label>
-          <button
-            type="button"
-            onClick={handleExport}
-            disabled={quarters.length === 0}
-            className="px-3 py-1.5 group flex items-center gap-1.5 rounded bg-white text-primary border border-green-500 font-medium hover:bg-green-500 hover:text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            <ArrowUpOnSquareIcon className="w-4 h-4 text-green-500 group-hover:text-white transition-colors" />
-            Export
-          </button>
-        </div>
-      </div>
-
+      <QuarterHeader onImport={handleImport} onExport={handleExport} hasQuarters={quarters.length > 0} />
       <div className="flex flex-col gap-4 w-full">
         <AnimatePresence mode="wait">
           {quarters.length === 0 ? (
-            <motion.div
-              key="empty"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="text-center py-8 border-2 border-dashed border-secondary/30 rounded-lg"
-            >
-              <CalendarDaysIcon className="w-12 h-12 mx-auto text-secondary/30 mb-2" />
-              <p className="text-secondary/70">No quarters defined yet</p>
-              <button
-                type="button"
-                onClick={handleAddQuarter}
-                className="mt-4 px-4 py-2 rounded bg-primary text-white hover:bg-secondary transition-colors"
-              >
-                Add First Quarter
-              </button>
-            </motion.div>
+            <QuarterEmptyState onAddQuarter={handleAddQuarter} />
           ) : (
-            <motion.div key="list" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex flex-col gap-4">
-              {quarters.map((q, i) => (
-                <motion.div
-                  key={i}
-                  initial={{ opacity: 0, y: -10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: 10 }}
-                  transition={{ duration: 0.2 }}
-                  className="flex flex-col gap-2 p-4 bg-white rounded-lg border border-secondary/30 shadow-sm"
-                >
-                  <div className="flex items-center justify-between">
-                    <div className="font-semibold text-primary">Quarter {i + 1}</div>
-                    <button
-                      type="button"
-                      onClick={() => handleRemoveQuarter(i)}
-                      className="p-1 rounded-full hover:bg-danger/10 text-danger transition-colors"
-                    >
-                      <TrashIcon className="w-5 h-5 stroke-2" />
-                    </button>
-                  </div>
-
-                  <div className="flex flex-col gap-4 sm:flex-row">
-                    {/* Start Date */}
-                    <div className="flex flex-col w-full">
-                      <label className="flex flex-col text-sm font-medium text-foreground">
-                        <div className="flex items-center gap-1 mb-1">
-                          <CalendarDaysIcon className="w-4 h-4 text-secondary" />
-                          <span>Start Date</span>
-                        </div>
-                        {i === 0 && skipFirstStart ? (
-                          <span className="px-2 py-1.5 rounded bg-secondary/5 text-primary w-full border border-dashed border-secondary/20">
-                            Start from day 1
-                          </span>
-                        ) : (
-                          <input
-                            type="date"
-                            className="px-2 py-1.5 rounded border border-secondary/40 bg-white text-primary focus:outline-none focus:ring-1 focus:ring-primary w-full cursor-pointer"
-                            value={q.start}
-                            onChange={e => handleDateChange(i, 'start', e.target.value)}
-                            disabled={i === 0 && skipFirstStart}
-                          />
-                        )}
-                      </label>
-                      {i === 0 && (
-                        <div className="flex items-center gap-2 mt-1 text-xs">
-                          <input
-                            type="checkbox"
-                            checked={skipFirstStart}
-                            onChange={e => setSkipFirstStart(e.target.checked)}
-                            className="cursor-pointer rounded border-secondary/40 text-primary focus:ring-primary"
-                          />
-                          <label className="cursor-pointer">Skip first quarter start date</label>
-                        </div>
-                      )}
-                    </div>
-
-                    {/* End Date */}
-                    <div className="flex flex-col w-full">
-                      <label className="flex flex-col text-sm font-medium text-foreground">
-                        <div className="flex items-center gap-1 mb-1">
-                          <CalendarDaysIcon className="w-4 h-4 text-secondary" />
-                          <span>End Date</span>
-                        </div>
-                        {i === quarters.length - 1 && quarters.length > 1 && skipLastEnd ? (
-                          <span className="px-2 py-1.5 rounded bg-secondary/5 text-primary w-full border border-dashed border-secondary/20">
-                            Till last day
-                          </span>
-                        ) : (
-                          <input
-                            type="date"
-                            className="px-2 py-1.5 rounded border border-secondary/40 bg-white text-primary focus:outline-none focus:ring-1 focus:ring-primary w-full cursor-pointer"
-                            value={q.end}
-                            min={q.start || undefined}
-                            onChange={e => handleDateChange(i, 'end', e.target.value)}
-                            disabled={i === quarters.length - 1 && quarters.length > 1 && skipLastEnd}
-                          />
-                        )}
-                      </label>
-                      {i === quarters.length - 1 && quarters.length > 1 && (
-                        <div className="flex items-center gap-2 mt-1 text-xs">
-                          <input
-                            type="checkbox"
-                            checked={skipLastEnd}
-                            onChange={e => setSkipLastEnd(e.target.checked)}
-                            className="cursor-pointer rounded border-secondary/40 text-primary focus:ring-primary"
-                          />
-                          <label className="cursor-pointer">Skip last quarter end date</label>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </motion.div>
-              ))}
-            </motion.div>
+            <QuarterList
+              quarters={quarters}
+              skipFirstStart={skipFirstStart}
+              skipLastEnd={skipLastEnd}
+              onDateChange={handleDateChange}
+              onRemove={handleRemoveQuarter}
+              setSkipFirstStart={setSkipFirstStart}
+              setSkipLastEnd={setSkipLastEnd}
+            />
           )}
         </AnimatePresence>
       </div>
