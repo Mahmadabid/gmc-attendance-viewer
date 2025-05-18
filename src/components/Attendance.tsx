@@ -63,8 +63,7 @@ const Attendance: React.FC = () => {
     const handler = () => loadQuarters();
     window.addEventListener('quarters-changed', handler);
     return () => window.removeEventListener('quarters-changed', handler);
-  }, []);
-  useEffect(() => {
+  }, []);  useEffect(() => {
     const fetchAttendance = async () => {
       setLoading(true);
       try {        // When getData changes, it's because the refresh button was clicked
@@ -74,8 +73,8 @@ const Attendance: React.FC = () => {
         const res = await fetch(`${FetchURL}${refreshParam}`, {
           method: 'GET',
           credentials: 'include',
-          // Ensure we're not using browser cache for refresh requests
-          cache: getData ? 'no-cache' : 'default',
+          // Always use no-cache to ensure service worker intercepts the request
+          cache: 'no-cache',
         });
         if (!res.ok) throw new Error('Failed to fetch attendance');
         const data = await res.json();

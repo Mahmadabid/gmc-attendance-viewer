@@ -38,34 +38,49 @@ self.addEventListener('fetch', evt => {
   const url = new URL(request.url);
   // 1) API requests to FETCH_URL
   if (url.pathname === FETCH_URL) {
-    // Normalize cache key: always use /api/dummy (strip refresh param)
-    const cacheKeyUrl = new URL(request.url);
-    cacheKeyUrl.searchParams.delete('refresh');
-    const cacheKey = new Request(cacheKeyUrl, { method: request.method, headers: request.headers, credentials: request.credentials, redirect: request.redirect, referrer: request.referrer, referrerPolicy: request.referrerPolicy, mode: request.mode, cache: request.cache, integrity: request.integrity, keepalive: request.keepalive, signal: request.signal });
-
     // Check if refresh parameter is present
-    const hasRefreshParam = url.searchParams.has('refresh');
-
+    const hasRefreshParam = url.searchParams.has('refresh');    
     if (hasRefreshParam) {
       // Network-first strategy when refresh=true (refresh button was clicked)
       evt.respondWith(
-        caches.open(DATA_CACHE).then(cache =>
-          fetch(request)
+        caches.open(DATA_CACHE).then(cache => {
+          // Create a normalized request without the refresh parameter for caching
+          const normalizedUrl = new URL(request.url);
+          normalizedUrl.searchParams.delete('refresh');
+          const normalizedRequest = new Request(normalizedUrl.toString(), {
+            method: request.method,
+            headers: request.headers,
+            mode: request.mode,
+            credentials: request.credentials
+          });
+          
+          return fetch(request)
             .then(res => {
-              // clone & store in cache using normalized key
-              cache.put(cacheKey, res.clone());
+              // Store in cache using the normalized request (without refresh param)
+              cache.put(normalizedRequest, res.clone());
               return res;
             })
             .catch(() =>
-              cache.match(cacheKey)
-            )
-        )
-      );
-    } else {
+              // When network fails, try to match the normalized request
+              cache.match(normalizedRequest)
+            );
+        })
+      );    } else {
       // Cache-first strategy for normal page loads
       evt.respondWith(
-        caches.open(DATA_CACHE).then(cache =>
-          cache.match(cacheKey)
+        caches.open(DATA_CACHE).then(cache => {
+          // Use the normalized request format for consistent caching
+          const normalizedUrl = new URL(request.url);
+          normalizedUrl.searchParams.delete('refresh'); // Just in case
+          const normalizedRequest = new Request(normalizedUrl.toString(), {
+            method: request.method,
+            headers: request.headers,
+            mode: request.mode,
+            credentials: request.credentials
+          });
+          
+          // Try to match with the normalized request
+          return cache.match(normalizedRequest)
             .then(cached => {
               // Return cached response if exists
               if (cached) {
@@ -74,11 +89,12 @@ self.addEventListener('fetch', evt => {
               // Otherwise fetch from network
               return fetch(request)
                 .then(response => {
-                  cache.put(cacheKey, response.clone());
+                  // Store using the normalized key for consistency
+                  cache.put(normalizedRequest, response.clone());
                   return response;
                 });
-            })
-        )
+            });
+        })
       );
     }
     return;
