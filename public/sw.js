@@ -1,5 +1,5 @@
 // public/sw.js
-const STATIC_CACHE = 'static-cache-v1';
+const STATIC_CACHE = 'static-cache-v2';
 const DATA_CACHE = 'data-cache-v1';
 const FETCH_URL = '/api/dummy';
 
@@ -7,8 +7,6 @@ const FETCH_URL = '/api/dummy';
 const STATIC_FILES = [
   '/',
   '/settings',
-  '/logo.png',
-  '/logo-144.png',
   // add here any other static file paths you use (fonts, CSS, etc.)
 ];
 
@@ -43,7 +41,7 @@ self.addEventListener('fetch', evt => {
     if (hasRefreshParam) {
       // Network-first strategy when refresh=true (refresh button was clicked)
       evt.respondWith(
-        caches.open(DATA_CACHE).then(cache => {
+        caches.open(DATA_CACHE).then(async cache => {
           // Create a normalized request without the refresh parameter for caching
           const normalizedUrl = new URL(request.url);
           normalizedUrl.searchParams.delete('refresh');
@@ -54,21 +52,21 @@ self.addEventListener('fetch', evt => {
             credentials: request.credentials
           });
           
-          return fetch(request)
-            .then(res => {
-              // Store in cache using the normalized request (without refresh param)
-              cache.put(normalizedRequest, res.clone());
-              return res;
-            })
-            .catch(() =>
+          try {
+            const res = await fetch(request);
+            // Store in cache using the normalized request (without refresh param)
+            cache.put(normalizedRequest, res.clone());
+            return res;
+          } catch {
+            return await
               // When network fails, try to match the normalized request
-              cache.match(normalizedRequest)
-            );
+              cache.match(normalizedRequest);
+          }
         })
       );    } else {
       // Cache-first strategy for normal page loads
       evt.respondWith(
-        caches.open(DATA_CACHE).then(cache => {
+        caches.open(DATA_CACHE).then(async cache => {
           // Use the normalized request format for consistent caching
           const normalizedUrl = new URL(request.url);
           normalizedUrl.searchParams.delete('refresh'); // Just in case
@@ -80,20 +78,15 @@ self.addEventListener('fetch', evt => {
           });
           
           // Try to match with the normalized request
-          return cache.match(normalizedRequest)
-            .then(cached => {
-              // Return cached response if exists
-              if (cached) {
-                return cached;
-              }
-              // Otherwise fetch from network
-              return fetch(request)
-                .then(response => {
-                  // Store using the normalized key for consistency
-                  cache.put(normalizedRequest, response.clone());
-                  return response;
-                });
-            });
+          const cached = await cache.match(normalizedRequest);
+          // Return cached response if exists
+          if (cached) {
+            return cached;
+          }
+          const response = await fetch(request);
+          // Store using the normalized key for consistency
+          cache.put(normalizedRequest, response.clone());
+          return response;
         })
       );
     }
