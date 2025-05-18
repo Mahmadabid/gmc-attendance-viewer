@@ -93,7 +93,15 @@ export default function RootLayoutClient({
             setDeferredPrompt(null);
             window.deferredPWAInstallPrompt = null;
         }
-    }; return (
+    };
+
+    useEffect(() => {
+        if (sessionStorage.getItem("fetchFirst") === null) {
+            sessionStorage.setItem("fetchFirst", "true");
+        }
+    }, [])
+
+    return (
         <html lang="en">
             <head>
                 <link rel="manifest" href="/manifest.webmanifest" />
