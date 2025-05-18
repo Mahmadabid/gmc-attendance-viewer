@@ -1,7 +1,6 @@
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
-# custom
-/src/app/dummy-push
+/src/app/api/dummy
 
 # dependencies
 /node_modules
