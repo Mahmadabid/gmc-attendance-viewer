@@ -1,5 +1,5 @@
 // public/sw.js
-const STATIC_CACHE = 'static-cache-v2';
+const STATIC_CACHE = 'static-cache-v1';
 const DATA_CACHE = 'data-cache-v2';
 const FETCH_URL = '/api/dummy';
 

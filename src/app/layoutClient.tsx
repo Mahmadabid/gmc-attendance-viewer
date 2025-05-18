@@ -88,6 +88,8 @@ export default function RootLayoutClient({
     useEffect(() => {
         if (sessionStorage.getItem('fetch') === null) {
             sessionStorage.setItem('fetch', FetchStatus.true);
+            // Set a random integer between 0 and 100 as a string
+            sessionStorage.setItem('randomNumber', Math.floor(Math.random() * 101).toString());
         }
     }, []);
 
