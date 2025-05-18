@@ -77,7 +77,6 @@ const Attendance: React.FC = () => {
   useEffect(() => {
     const fetchAttendance = async () => {
       setLoading(true);
-      let fetched = false;
       try {
         if (isOnline) {
           // Only try network fetch if online
@@ -89,28 +88,27 @@ const Attendance: React.FC = () => {
           const data = await res.json();
           setLoggedIn(data.loggedIn);
           setAttendance((data.attendance || []).slice().reverse());
-          fetched = true;
-        }
-      } catch (err: any) {
-        // If network fails or offline, try to get from cache via fetch (service worker will serve cache)
-        try {
-          const res = await fetch('/api/dummy', {
-            method: 'GET',
-            credentials: 'include',
-            cache: 'only-if-cached',
-            mode: 'same-origin',
-          });
-          if (res && res.ok) {
-            const data = await res.json();
-            setLoggedIn(data.loggedIn);
-            setAttendance((data.attendance || []).slice().reverse());
-            setError(null);
-            fetched = true;
-          } else {
-            throw new Error('No cached attendance data');
+          setError(null);
+        } else {
+          // If offline, try to get from cache via fetch (service worker will serve cache)
+          try {
+            const res = await fetch('/api/dummy', {
+              method: 'GET',
+              credentials: 'include',
+              cache: 'only-if-cached',
+              mode: 'same-origin',
+            });
+            if (res && res.ok) {
+              const data = await res.json();
+              setLoggedIn(data.loggedIn);
+              setAttendance((data.attendance || []).slice().reverse());
+              setError(null);
+            } else {
+              throw new Error('No cached attendance data');
+            }
+          } catch (cacheErr: any) {
+            setError('Failed to fetch attendance (offline and no cache)');
           }
-        } catch (cacheErr: any) {
-          setError('Failed to fetch attendance (offline and no cache)');
         }
       } finally {
         setLoading(false);
