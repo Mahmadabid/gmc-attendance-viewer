@@ -11,7 +11,7 @@ import { isDateInRange } from './lib/dateUtils';
 import { ArrowPathIcon, WifiIcon } from '@heroicons/react/24/outline';
 import { useIsOnline } from './lib/context/IsOnlineContext';
 import { ExclamationTriangleIcon } from '@heroicons/react/24/solid';
-import { FetchStatus, FetchURL } from './lib/utils';
+import { FetchURL } from './lib/utils';
 
 export interface AttendanceRow {
   subject: string;
