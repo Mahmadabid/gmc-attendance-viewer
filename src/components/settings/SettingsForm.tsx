@@ -1,7 +1,6 @@
 'use client';
 
-import { TrashIcon } from "@heroicons/react/24/outline";
-import { PlusCircleIcon, ArrowDownOnSquareIcon, ArrowUpOnSquareIcon, ArrowPathIcon, CalendarDaysIcon } from "@heroicons/react/24/solid";
+import { PlusCircleIcon, ArrowPathIcon } from "@heroicons/react/24/solid";
 import { useEffect, useState, useCallback } from "react";
 import Spinner from "../Spinner";
 import { motion, AnimatePresence } from "framer-motion";
