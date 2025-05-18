@@ -36,20 +36,45 @@ self.addEventListener('fetch', evt => {
   const { request } = evt;
   const url = new URL(request.url);
 
-  // 1) API requests to /api/dummy — network-first, cache fallback
+  // 1) API requests to /api/dummy
   if (url.pathname === '/api/dummy') {
+    // If request has X-Force-Refresh header, do network-first (for refresh button)
+    if (request.headers.get('X-Force-Refresh') === 'true') {
+      evt.respondWith(
+        caches.open(DATA_CACHE).then(cache =>
+          fetch(request)
+            .then(res => {
+              cache.put(request, res.clone());
+              return res;
+            })
+            .catch(() => cache.match(request))
+        )
+      );
+      return;
+    }
+
+    // Default: cache-first, then background update
     evt.respondWith(
-      caches.open(DATA_CACHE).then(cache =>
+      caches.open(DATA_CACHE).then(async cache => {
+        const cached = await cache.match(request);
+        // Start background update
         fetch(request)
           .then(res => {
-            // clone & store in cache
             cache.put(request, res.clone());
-            return res;
+            // Notify clients of update
+            self.clients.matchAll().then(clients => {
+              clients.forEach(client => {
+                client.postMessage({ type: 'attendance-updated' });
+              });
+            });
           })
-          .catch(() =>
-            cache.match(request)
-          )
-      )
+          .catch(() => {});
+        // Return cached if available, else fetch
+        return cached || fetch(request).then(res => {
+          cache.put(request, res.clone());
+          return res;
+        });
+      })
     );
     return;
   }
