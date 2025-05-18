@@ -51,6 +51,12 @@ export default function Header() {
                         className={`relative overflow-visible p-2 rounded-full flex items-center justify-center transition-colors ${isOnline ? 'text-accent hover:text-white hover:bg-secondary/60' : 'text-red-400 bg-red-200 cursor-not-allowed'}`}
                         title={isOnline ? 'Logout' : 'Offline: Logout disabled'}
                         onClick={async () => {
+                            // Clear all caches on logout
+                            if ('caches' in window) {
+                                const cacheNames = await caches.keys();
+                                console.log(cacheNames)
+                                await Promise.all(cacheNames.map(name => caches.delete(name)));
+                            }
                             await fetch('/api/logout');
                             window.location.reload();
                         }}
