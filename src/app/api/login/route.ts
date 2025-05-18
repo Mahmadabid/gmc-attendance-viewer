@@ -26,13 +26,19 @@ export async function POST(req: NextRequest) {
         password,
       }).toString(),
       redirect: 'manual',
-    });    // Check if the response was successful
+    });
+
+    // Always read the response body as text to check for error messages
+    const responseBody = await response.text();
+    // Check for invalid credentials in the response body
+    const invalidLogin = responseBody.includes('Invalid Username or Password') || responseBody.includes('Invalid username or password');
+
     // HTTP 302 and 303 are both valid redirect codes that may indicate successful login
     const validRedirectCodes = [302, 303];
-    if (!response.ok && !validRedirectCodes.includes(response.status)) {
+    if ((!response.ok && !validRedirectCodes.includes(response.status)) || invalidLogin) {
       return NextResponse.json(
-        { success: false, error: `Login failed with status: ${response.status}` },
-        { status: response.status }
+        { success: false, error: invalidLogin ? 'Invalid Username or Password' : `Login failed with status: ${response.status}` },
+        { status: invalidLogin ? 401 : response.status }
       );
     }
 

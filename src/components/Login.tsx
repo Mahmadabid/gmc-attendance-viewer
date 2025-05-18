@@ -53,7 +53,13 @@ const Login: React.FC<LoginProps> = ({setGetData}) => {
     <div className="max-w-md mx-auto mt-16 p-6 border border-secondary/40 rounded-lg shadow-lg bg-white">
       <h2 className="text-2xl text-secondary font-bold text-center mb-6">Login</h2>
       {message && (
-        <div className={`mb-4 text-center rounded font-semibold ${messageType === 'success' ? 'text-green-600 bg-green-200' : 'text-red-600 bg-red-200'}`}>{message}</div>
+        <div className={`mb-4 text-center rounded font-semibold ${messageType === 'success' ? 'text-green-600 bg-green-200' : 'text-red-700 bg-red-200'}`}>
+          {message === 'Invalid Username or Password' ? (
+            <div className="alert alert-danger">Invalid Username or Password</div>
+          ) : (
+            message
+          )}
+        </div>
       )}
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
         <div className="mb-2">

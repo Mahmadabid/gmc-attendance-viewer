@@ -78,15 +78,31 @@ const Attendance: React.FC = () => {
     const fetchAttendance = async () => {
       setLoading(true);
       try {
+        // Try to get cached response first
+        let cachedData: any = null;
+        if ('caches' in window) {
+          const cache = await caches.open('gmc-attendance-cache-v1');
+          const cachedResponse = await cache.match('/api/dummy');
+          if (cachedResponse) {
+            const data = await cachedResponse.json();
+            setLoggedIn(data.loggedIn);
+            setAttendance((data.attendance || []).slice().reverse());
+            setLoading(false); // Show cached data immediately
+            cachedData = data;
+          }
+        }
+        // Always fetch fresh data in background
         const res = await fetch('/api/dummy', {
           method: 'GET',
           credentials: 'include',
         });
         if (!res.ok) throw new Error('Failed to fetch attendance');
         const data = await res.json();
-
-        setLoggedIn(data.loggedIn);
-        setAttendance((data.attendance || []).slice().reverse());
+        // Only update if data is different from cache
+        if (!cachedData || JSON.stringify(data) !== JSON.stringify(cachedData)) {
+          setLoggedIn(data.loggedIn);
+          setAttendance((data.attendance || []).slice().reverse());
+        }
       } catch (err: any) {
         setError(err.message || 'Unknown error');
       } finally {
