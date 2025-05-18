@@ -1,4 +1,5 @@
 "use client";
+
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Cog6ToothIcon, PowerIcon } from "@heroicons/react/24/outline";
@@ -50,10 +51,6 @@ export default function Header() {
                         className={`relative overflow-visible p-2 rounded-full flex items-center justify-center transition-colors ${isOnline ? 'text-accent hover:text-white hover:bg-secondary/60' : 'text-red-400 bg-red-200 cursor-not-allowed'}`}
                         title={isOnline ? 'Logout' : 'Offline: Logout disabled'}
                         onClick={async () => {
-                            // Notify SW to clear all caches
-                            if (navigator.serviceWorker && navigator.serviceWorker.controller) {
-                                navigator.serviceWorker.controller.postMessage({ type: 'CLEAR_ALL_CACHES' });
-                            }
                             await fetch('/api/logout');
                             window.location.reload();
                         }}

@@ -177,12 +177,9 @@ const Attendance: React.FC = () => {
               className="flex items-center gap-2 px-4 max-[520px]:px-2 py-2 rounded bg-accent text-white font-semibold hover:bg-secondary/80 transition-colors shadow-md"
               onClick={() => setGetData(prev => !prev)}
               title="Refresh attendance"
-              disabled={loading}
-              style={loading ? { opacity: 0.6, cursor: 'not-allowed' } : {}}
             >
-              <ArrowPathIcon className="w-6 h-6 animate-spin" style={{ visibility: loading ? 'visible' : 'hidden', position: 'absolute', left: -9999 }} />
-              <ArrowPathIcon className="w-6 h-6" style={{ visibility: loading ? 'hidden' : 'visible' }} />
-              <span className="hidden min-[520px]:inline">{loading ? 'Refreshing...' : 'Refresh'}</span>
+              <ArrowPathIcon className="w-6 h-6" />
+              <span className="hidden min-[520px]:inline">Refresh</span>
             </button>
           ) : (
             <div className="flex items-center gap-2 px-4 max-[520px]:px-2 py-2 rounded bg-red-400 text-white font-semibold shadow-md cursor-not-allowed select-none" title="Offline mode">
