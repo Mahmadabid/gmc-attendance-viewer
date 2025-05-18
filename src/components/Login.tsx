@@ -70,7 +70,7 @@ const Login: React.FC<LoginProps> = ({ setGetData }) => {
       <div className="max-w-md mx-auto p-6 border border-secondary/40 rounded-lg shadow-lg bg-white">
         <h2 className="text-2xl text-secondary font-bold text-center mb-6">Login</h2>
         {message && (
-          <div className={`mb - 4 text - center rounded font - semibold ${messageType === 'success' ? 'text-green-600 bg-green-200' : 'text-red-700 bg-red-200'} `}>
+          <div className={`mb-4 text-center rounded p-1 font-semibold ${messageType === 'success' ? 'text-green-600 bg-green-200' : 'text-red-700 bg-red-200'} `}>
             {message === 'Invalid Username or Password' ? (
               <div className="alert alert-danger">Invalid Username or Password</div>
             ) : (
@@ -106,7 +106,7 @@ const Login: React.FC<LoginProps> = ({ setGetData }) => {
           <button
             type="submit"
             className="w-full py-2 rounded bg-primary flex justify-center items-center text-white font-semibold text-lg hover:bg-secondary transition-colors"
-            disabled={loading}
+            disabled={loading || !isOnline}
           >
             {loading ? <SimpleSpinner /> : 'Login'}
           </button>
