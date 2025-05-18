@@ -66,12 +66,15 @@ const Attendance: React.FC = () => {
   }, []);
 
   useEffect(() => {
+    // Patch: Detect offline status using navigator.onLine for this effect only
+    const actuallyOnline = typeof navigator !== 'undefined' ? navigator.onLine : isOnline;
     const fetchAttendance = async () => {
       setLoading(true);
       try {
-        const fetchFirst = sessionStorage.getItem("fetchFirst");
+        const FetchOnFirstPageLoad = sessionStorage.getItem("FetchOnFirstPageLoad");
         // Always add refresh=true when refresh button is pressed
-        const refreshParam = refreshCount > 0 || fetchFirst === 'true' ? '?refresh=true' : '';
+        // Use actuallyOnline instead of isOnline
+        const refreshParam = (refreshCount > 0 || FetchOnFirstPageLoad === null) && actuallyOnline ? '?refresh=true' : '';
         const res = await fetch(`${FetchURL}${refreshParam}`, {
           method: 'GET',
           credentials: 'include',
@@ -84,7 +87,7 @@ const Attendance: React.FC = () => {
         if (data.attendance && data.attendance.length > 0) {
           setLoggedIn(data.loggedIn);
           setAttendance((data.attendance || []).slice().reverse());
-          sessionStorage.setItem("fetchFirst", "false");
+          sessionStorage.setItem("FetchOnFirstPageLoad", "false");
         } else {
           setLoggedIn(false);
           setAttendance([]);

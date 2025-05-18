@@ -62,6 +62,7 @@ export default function Header() {
                                     }
                                     await fetch('/api/logout');
                                 } finally {
+                                    sessionStorage.clear();
                                     window.location.reload();
                                 }
                             }}

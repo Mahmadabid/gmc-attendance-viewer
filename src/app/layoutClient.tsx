@@ -95,12 +95,6 @@ export default function RootLayoutClient({
         }
     };
 
-    useEffect(() => {
-        if (sessionStorage.getItem("fetchFirst") === null) {
-            sessionStorage.setItem("fetchFirst", "true");
-        }
-    }, [])
-
     return (
         <html lang="en">
             <head>

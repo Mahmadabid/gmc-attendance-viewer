@@ -54,8 +54,10 @@ self.addEventListener('fetch', evt => {
           
           try {
             const res = await fetch(request);
-            // Store in cache using the normalized request (without refresh param)
-            cache.put(normalizedRequest, res.clone());
+            if (res && res.ok) {
+              // Store in cache using the normalized request (without refresh param) only if fetch is successful
+              cache.put(normalizedRequest, res.clone());
+            }
             return res;
           } catch {
             return await
