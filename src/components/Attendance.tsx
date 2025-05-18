@@ -103,12 +103,6 @@ const Attendance: React.FC = () => {
     });
   }
 
-  // Store a random number from 1 to 100 in sessionStorage on mount
-  useEffect(() => {
-    const randomNum = Math.floor(Math.random() * 100) + 1;
-    sessionStorage.setItem('randomNumber', randomNum.toString());
-  }, []);
-
   if (loading) return <div className='flex justify-center items-center min-h-[50vh]'><Spinner /></div>;
   if (error) return <div className="text-center mt-8 text-red-500">{error}</div>;
   if (!loggedIn) return <Login onRefresh={() => setRefreshCount(c => c + 1)} />;

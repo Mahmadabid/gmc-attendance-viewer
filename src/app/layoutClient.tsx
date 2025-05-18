@@ -82,6 +82,13 @@ export default function RootLayoutClient({
         };
     }, []);
 
+    
+  // Store a random number from 1 to 100 in sessionStorage on mount
+  useEffect(() => {
+    const randomNum = Math.floor(Math.random() * 100) + 1;
+    sessionStorage.setItem('randomNumber', randomNum.toString());
+  }, []);
+
     const handleInstallClick = async () => {
         const promptEvent = deferredPrompt || window.deferredPWAInstallPrompt;
         if (promptEvent) {
