@@ -70,7 +70,7 @@ const Attendance: React.FC = () => {
       setLoading(true);
       try {
         // Determine if we should fetch from server or use cache
-        let shouldFetch = false;
+        let shouldFetch = true;
         const fetchFlag = sessionStorage.getItem('fetch');
         if (refreshCount > 0) {
           shouldFetch = true;
