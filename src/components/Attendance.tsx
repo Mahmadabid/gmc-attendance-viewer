@@ -80,7 +80,6 @@ const Attendance: React.FC = () => {
         if (!res.ok) throw new Error('Failed to fetch attendance');
         const data = await res.json();
 
-        sessionStorage.setItem('fetch', FetchStatus.false);
         setLoggedIn(data.loggedIn);
         setAttendance((data.attendance || []).slice().reverse());
       } catch (err: any) {
