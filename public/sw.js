@@ -1,6 +1,7 @@
 // public/sw.js
 const STATIC_CACHE = 'static-cache-v1';
 const DATA_CACHE = 'data-cache-v1';
+const FETCH_URL = '/api/dummy';
 
 // List all the URLs you need for offline — pages + public assets
 const STATIC_FILES = [
@@ -35,22 +36,46 @@ self.addEventListener('activate', evt => {
 self.addEventListener('fetch', evt => {
   const { request } = evt;
   const url = new URL(request.url);
+  // 1) API requests to FETCH_URL
+  if (url.pathname === FETCH_URL) {
+    // Check if refresh parameter is present
+    const hasRefreshParam = url.searchParams.has('refresh');
 
-  // 1) API requests to /api/dummy — network-first, cache fallback
-  if (url.pathname === '/api/dummy') {
-    evt.respondWith(
-      caches.open(DATA_CACHE).then(cache =>
-        fetch(request)
-          .then(res => {
-            // clone & store in cache
-            cache.put(request, res.clone());
-            return res;
-          })
-          .catch(() =>
-            cache.match(request)
-          )
-      )
-    );
+    if (hasRefreshParam) {
+      // Network-first strategy when refresh=true (refresh button was clicked)
+      evt.respondWith(
+        caches.open(DATA_CACHE).then(cache =>
+          fetch(request)
+            .then(res => {
+              // clone & store in cache
+              cache.put(request, res.clone());
+              return res;
+            })
+            .catch(() =>
+              cache.match(request)
+            )
+        )
+      );
+    } else {
+      // Cache-first strategy for normal page loads
+      evt.respondWith(
+        caches.open(DATA_CACHE).then(cache =>
+          cache.match(request)
+            .then(cached => {
+              // Return cached response if exists
+              if (cached) {
+                return cached;
+              }
+              // Otherwise fetch from network
+              return fetch(request)
+                .then(response => {
+                  cache.put(request, response.clone());
+                  return response;
+                });
+            })
+        )
+      );
+    }
     return;
   }
 

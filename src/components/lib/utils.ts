@@ -8,3 +8,5 @@ export function updateCookieMaxAgeAndExpires(setCookie: string, days: number): s
         .replace(/Max-Age=\d+/, `Max-Age=${newMaxAge}`)
         .replace(/expires=[^;]+;/i, `expires=${newExpires};`);
 }
+
+export const FetchURL = '/api/dummy'

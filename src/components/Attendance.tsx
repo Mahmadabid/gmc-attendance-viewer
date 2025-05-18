@@ -11,6 +11,7 @@ import { isDateInRange } from './lib/dateUtils';
 import { ArrowPathIcon, WifiIcon } from '@heroicons/react/24/outline';
 import { useIsOnline } from './IsOnlineContext';
 import { ExclamationTriangleIcon } from '@heroicons/react/24/solid';
+import { FetchURL } from './lib/utils';
 
 export interface AttendanceRow {
   subject: string;
@@ -66,14 +67,15 @@ const Attendance: React.FC = () => {
   useEffect(() => {
     const fetchAttendance = async () => {
       setLoading(true);
-      try {
-        // When getData changes, it's because the refresh button was clicked
+      try {        // When getData changes, it's because the refresh button was clicked
         // Add refresh=true parameter to force network fetch when refresh button is clicked
         const refreshParam = getData ? '?refresh=true' : '';
         
-        const res = await fetch(`/api/dummy${refreshParam}`, {
+        const res = await fetch(`${FetchURL}${refreshParam}`, {
           method: 'GET',
           credentials: 'include',
+          // Ensure we're not using browser cache for refresh requests
+          cache: getData ? 'no-cache' : 'default',
         });
         if (!res.ok) throw new Error('Failed to fetch attendance');
         const data = await res.json();
