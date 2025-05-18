@@ -63,7 +63,9 @@ const Attendance: React.FC = () => {
     const handler = () => loadQuarters();
     window.addEventListener('quarters-changed', handler);
     return () => window.removeEventListener('quarters-changed', handler);
-  }, []); useEffect(() => {
+  }, []);
+
+  useEffect(() => {
     const fetchAttendance = async () => {
       setLoading(true);
       try {
@@ -100,6 +102,12 @@ const Attendance: React.FC = () => {
       return isDateInRange(row.date, start, end);
     });
   }
+
+  // Store a random number from 1 to 100 in sessionStorage on mount
+  useEffect(() => {
+    const randomNum = Math.floor(Math.random() * 100) + 1;
+    sessionStorage.setItem('randomNumber', randomNum.toString());
+  }, []);
 
   if (loading) return <div className='flex justify-center items-center min-h-[50vh]'><Spinner /></div>;
   if (error) return <div className="text-center mt-8 text-red-500">{error}</div>;
