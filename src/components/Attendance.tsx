@@ -95,7 +95,7 @@ const Attendance: React.FC = () => {
       }
     };
     fetchAttendance();
-  }, [getData, isOnline]);
+  }, [getData]); // Remove isOnline from dependencies
 
   // Listen for service worker update for /api/dummy
   useEffect(() => {
