@@ -81,7 +81,7 @@ const Attendance: React.FC = () => {
           // Always use no-cache to ensure service worker intercepts the request
           cache: 'no-cache',
         });
-        if (!res.ok) throw new Error('Failed to fetch attendance');        
+        if (!res.ok) throw new Error('Failed to fetch attendance');
         const data = await res.json();
 
         if (data.attendance && data.attendance.length > 0) {
@@ -114,7 +114,16 @@ const Attendance: React.FC = () => {
   }
 
   if (loading) return <div className='flex justify-center items-center min-h-[50vh]'><Spinner /></div>;
-  if (error) return <div className="text-center mt-8 text-red-500">{error}</div>;
+  if (error) {
+    return (
+      <div className='flex flex-col gap-3 justify-center items-center'>
+        <div className="text-center font-semibold text-2xl mt-8 text-red-500">{error}</div>
+        <button className="mt-4 px-2 py-1 bg-primary text-white rounded hover:bg-secondary/80 transition-colors shadow-md" onClick={() => window.location.reload()}>
+          Retry
+        </button>
+      </div>
+    );
+  }
   if (!loggedIn) return <Login onRefresh={() => setRefreshCount(c => c + 1)} />;
 
   // Calculate stats
