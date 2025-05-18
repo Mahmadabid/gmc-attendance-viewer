@@ -96,6 +96,20 @@ const Attendance: React.FC = () => {
     fetchAttendance();
   }, [getData]);
 
+  // Listen for service worker update for /api/dummy
+  useEffect(() => {
+    if ('serviceWorker' in navigator) {
+      const handler = (event: MessageEvent) => {
+        if (event.data && event.data.type === 'API_DUMMY_UPDATED') {
+          // Re-fetch attendance data when background update is available
+          setGetData(prev => !prev);
+        }
+      };
+      navigator.serviceWorker.addEventListener('message', handler);
+      return () => navigator.serviceWorker.removeEventListener('message', handler);
+    }
+  }, []);
+
   // Filter attendance by quarter if quarters are present
   let attendanceInQuarter = attendance;
   let currentQuarter = null;
