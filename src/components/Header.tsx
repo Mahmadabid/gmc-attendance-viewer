@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Cog6ToothIcon, PowerIcon } from "@heroicons/react/24/outline";
-import React, { useEffect, useState } from "react";
+import { useIsOnline } from "./IsOnlineContext";
 
 const navItems = [
     { name: "Settings", href: "/settings", icon: Cog6ToothIcon },
@@ -11,19 +11,7 @@ const navItems = [
 
 export default function Header() {
     const pathname = usePathname();
-    const [isOnline, setIsOnline] = useState(true);
-
-    useEffect(() => {
-        setIsOnline(navigator.onLine);
-        const handleOnline = () => setIsOnline(true);
-        const handleOffline = () => setIsOnline(false);
-        window.addEventListener('online', handleOnline);
-        window.addEventListener('offline', handleOffline);
-        return () => {
-            window.removeEventListener('online', handleOnline);
-            window.removeEventListener('offline', handleOffline);
-        };
-    }, []);
+    const isOnline = useIsOnline();
     return (
         <header className="w-full bg-background shadow-lg sticky top-0 z-50 border-b border-secondary/40">
             <nav className="max-w-4xl mx-auto flex items-center justify-between max-[500px]:px-2 max-[460px]:px-1 px-4 py-3 sm:py-4 min-h-[56px]">
@@ -54,7 +42,6 @@ export default function Header() {
                             // Clear all caches on logout
                             if ('caches' in window) {
                                 const cacheNames = await caches.keys();
-                                console.log(cacheNames)
                                 await Promise.all(cacheNames.map(name => caches.delete(name)));
                             }
                             await fetch('/api/logout');

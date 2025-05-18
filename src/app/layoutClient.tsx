@@ -4,6 +4,7 @@ import Header from "../components/Header";
 import { Analytics } from "@vercel/analytics/next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { useEffect, useState } from "react";
+import { IsOnlineProvider } from "../components/IsOnlineContext";
 
 const geistSans = Geist({
     variable: "--font-geist-sans",
@@ -155,7 +156,9 @@ export default function RootLayoutClient({
                         </span>
                     </button>
                 )}
-                {children}
+                <IsOnlineProvider>
+                  {children}
+                </IsOnlineProvider>
                 <div className="h-[70px]"></div>
             </body>
         </html>

@@ -9,6 +9,8 @@ import QuarterFilterButtons from './attendance/QuarterFilterButtons';
 import Login from './Login';
 import { isDateInRange } from './lib/dateUtils';
 import { ArrowPathIcon, WifiIcon } from '@heroicons/react/24/outline';
+import { useIsOnline } from './IsOnlineContext';
+import { ExclamationTriangleIcon } from '@heroicons/react/24/solid';
 
 export interface AttendanceRow {
   subject: string;
@@ -42,19 +44,7 @@ const Attendance: React.FC = () => {
   const [selectedQuarterIdx, setSelectedQuarterIdx] = useState<number>(-1); // -1 means whole year
   const [quarters, setQuarters] = useState<Quarter[]>([]);
   const [getData, setGetData] = useState(false);
-  const [isOnline, setIsOnline] = useState(true);
-
-  // Online/offline detection (move this above any conditional returns)
-  useEffect(() => {
-    const updateOnline = () => setIsOnline(navigator.onLine);
-    window.addEventListener('online', updateOnline);
-    window.addEventListener('offline', updateOnline);
-    updateOnline();
-    return () => {
-      window.removeEventListener('online', updateOnline);
-      window.removeEventListener('offline', updateOnline);
-    };
-  }, []);
+  const isOnline = useIsOnline();
 
   // Load quarters from localStorage on mount and when quarters change
   useEffect(() => {
@@ -73,12 +63,15 @@ const Attendance: React.FC = () => {
     window.addEventListener('quarters-changed', handler);
     return () => window.removeEventListener('quarters-changed', handler);
   }, []);
-
   useEffect(() => {
     const fetchAttendance = async () => {
       setLoading(true);
       try {
-        const res = await fetch('/api/dummy', {
+        // When getData changes, it's because the refresh button was clicked
+        // Add refresh=true parameter to force network fetch when refresh button is clicked
+        const refreshParam = getData ? '?refresh=true' : '';
+        
+        const res = await fetch(`/api/dummy${refreshParam}`, {
           method: 'GET',
           credentials: 'include',
         });
@@ -169,7 +162,8 @@ const Attendance: React.FC = () => {
   return (
     <div className="mt-8 mx-1 mb-4">
       {!isOnline && (
-        <div className="text-center text-yellow-700 bg-yellow-100 border border-yellow-300 rounded p-2 mb-6 font-semibold">
+        <div className="flex justify-center items-center mx-2 text-yellow-700 bg-yellow-100 border border-yellow-300 rounded p-2 mb-6 font-semibold">
+          <ExclamationTriangleIcon className="w-6 h-6 text-yellow-700 mr-2" />
           You are in offline mode. Data may be outdated.
         </div>
       )}
