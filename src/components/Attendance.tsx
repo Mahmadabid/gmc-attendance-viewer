@@ -78,38 +78,18 @@ const Attendance: React.FC = () => {
     const fetchAttendance = async () => {
       setLoading(true);
       try {
-        if (isOnline) {
-          // Only try network fetch if online
-          const res = await fetch('/api/dummy', {
-            method: 'GET',
-            credentials: 'include',
-          });
-          if (!res.ok) throw new Error('Failed to fetch attendance');
-          const data = await res.json();
-          setLoggedIn(data.loggedIn);
-          setAttendance((data.attendance || []).slice().reverse());
-          setError(null);
-        } else {
-          // If offline, try to get from cache via fetch (service worker will serve cache)
-          try {
-            const res = await fetch('/api/dummy', {
-              method: 'GET',
-              credentials: 'include',
-              cache: 'only-if-cached',
-              mode: 'same-origin',
-            });
-            if (res && res.ok) {
-              const data = await res.json();
-              setLoggedIn(data.loggedIn);
-              setAttendance((data.attendance || []).slice().reverse());
-              setError(null);
-            } else {
-              throw new Error('No cached attendance data');
-            }
-          } catch (cacheErr: any) {
-            setError('Failed to fetch attendance (offline and no cache)');
-          }
-        }
+        // Always use a normal fetch; service worker will serve cache if offline
+        const res = await fetch('/api/dummy', {
+          method: 'GET',
+          credentials: 'include',
+        });
+        if (!res.ok) throw new Error('Failed to fetch attendance');
+        const data = await res.json();
+        setLoggedIn(data.loggedIn);
+        setAttendance((data.attendance || []).slice().reverse());
+        setError(null);
+      } catch (err: any) {
+        setError('Failed to fetch attendance (offline and no cache)');
       } finally {
         setLoading(false);
       }
