@@ -37,7 +37,7 @@ export default function Header() {
                             <li key={name} className="flex items-center">
                                 <Link
                                     href={href}
-                                    className={`flex items-center gap-1 px-2 py-2 rounded transition-all text-sm font-semibold text-accent hover:bg-secondary/60 hover:text-blue-200/90 ${pathname === href ? "bg-accent text-primary shadow" : ""}`}
+                                    className={`flex items-center gap-1 px-2 py-2 rounded transition-all text-sm font-semibold text-accent hover:bg-secondary/60 hover:text-blue-200 ${pathname === href ? "bg-accent text-primary shadow" : ""}`}
                                     aria-current={pathname === href ? "page" : undefined}
                                 >
                                     <Icon className="w-5 h-5" aria-hidden="true" />
@@ -46,7 +46,7 @@ export default function Header() {
                             </li>
                         ))}
                         <button
-                            className={`relative overflow-visible p-2 rounded-full flex items-center justify-center transition-colors ${isOnline ? 'text-accent hover:text-blue-200/90 hover:bg-secondary/60' : 'text-red-400 bg-red-200 cursor-not-allowed'}`}
+                            className={`relative overflow-visible p-2 rounded-full flex items-center justify-center transition-colors ${isOnline ? 'text-accent hover:text-blue-200 hover:bg-secondary/60' : 'text-red-400 bg-red-200 cursor-not-allowed'}`}
                             title={isOnline ? 'Logout' : 'Offline: Logout disabled'}
                             onClick={async () => {
                                 setShowLogoutSpinner(true);
