@@ -77,24 +77,27 @@ const Attendance: React.FC = () => {
   useEffect(() => {
     const fetchAttendance = async () => {
       setLoading(true);
+      let fetched = false;
       try {
-        // Try network fetch first
-        const res = await fetch('/api/dummy', {
-          method: 'GET',
-          credentials: 'include',
-        });
-        if (!res.ok) throw new Error('Failed to fetch attendance');
-        const data = await res.json();
-        setLoggedIn(data.loggedIn);
-        setAttendance((data.attendance || []).slice().reverse());
+        if (isOnline) {
+          // Only try network fetch if online
+          const res = await fetch('/api/dummy', {
+            method: 'GET',
+            credentials: 'include',
+          });
+          if (!res.ok) throw new Error('Failed to fetch attendance');
+          const data = await res.json();
+          setLoggedIn(data.loggedIn);
+          setAttendance((data.attendance || []).slice().reverse());
+          fetched = true;
+        }
       } catch (err: any) {
-        // If network fails, try to get from cache via fetch (service worker will serve cache)
+        // If network fails or offline, try to get from cache via fetch (service worker will serve cache)
         try {
           const res = await fetch('/api/dummy', {
             method: 'GET',
             credentials: 'include',
             cache: 'only-if-cached',
-            // mode: 'same-origin' is required for 'only-if-cached' in some browsers
             mode: 'same-origin',
           });
           if (res && res.ok) {
@@ -102,6 +105,7 @@ const Attendance: React.FC = () => {
             setLoggedIn(data.loggedIn);
             setAttendance((data.attendance || []).slice().reverse());
             setError(null);
+            fetched = true;
           } else {
             throw new Error('No cached attendance data');
           }
@@ -113,7 +117,7 @@ const Attendance: React.FC = () => {
       }
     };
     fetchAttendance();
-  }, [getData]);
+  }, [getData, isOnline]);
 
   // Listen for service worker update for /api/dummy
   useEffect(() => {
