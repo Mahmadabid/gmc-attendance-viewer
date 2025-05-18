@@ -36,6 +36,12 @@ const Login: React.FC<LoginProps> = ({ setGetData }) => {
       if (data.success) {
         setMessage('Login successful!');
         setMessageType('success');
+        // Clear all caches
+        if ('caches' in window) {
+          caches.keys().then(keys => {
+            keys.forEach(key => caches.delete(key));
+          });
+        }
         setGetData(prev => !prev);
         // Notify SW to cache attendance data
         if (navigator.serviceWorker && navigator.serviceWorker.controller) {
