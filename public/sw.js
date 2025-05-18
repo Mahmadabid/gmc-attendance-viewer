@@ -38,6 +38,11 @@ self.addEventListener('fetch', evt => {
   const url = new URL(request.url);
   // 1) API requests to FETCH_URL
   if (url.pathname === FETCH_URL) {
+    // Normalize cache key: always use /api/dummy (strip refresh param)
+    const cacheKeyUrl = new URL(request.url);
+    cacheKeyUrl.searchParams.delete('refresh');
+    const cacheKey = new Request(cacheKeyUrl, { method: request.method, headers: request.headers, credentials: request.credentials, redirect: request.redirect, referrer: request.referrer, referrerPolicy: request.referrerPolicy, mode: request.mode, cache: request.cache, integrity: request.integrity, keepalive: request.keepalive, signal: request.signal });
+
     // Check if refresh parameter is present
     const hasRefreshParam = url.searchParams.has('refresh');
 
@@ -47,12 +52,12 @@ self.addEventListener('fetch', evt => {
         caches.open(DATA_CACHE).then(cache =>
           fetch(request)
             .then(res => {
-              // clone & store in cache
-              cache.put(request, res.clone());
+              // clone & store in cache using normalized key
+              cache.put(cacheKey, res.clone());
               return res;
             })
             .catch(() =>
-              cache.match(request)
+              cache.match(cacheKey)
             )
         )
       );
@@ -60,7 +65,7 @@ self.addEventListener('fetch', evt => {
       // Cache-first strategy for normal page loads
       evt.respondWith(
         caches.open(DATA_CACHE).then(cache =>
-          cache.match(request)
+          cache.match(cacheKey)
             .then(cached => {
               // Return cached response if exists
               if (cached) {
@@ -69,7 +74,7 @@ self.addEventListener('fetch', evt => {
               // Otherwise fetch from network
               return fetch(request)
                 .then(response => {
-                  cache.put(request, response.clone());
+                  cache.put(cacheKey, response.clone());
                   return response;
                 });
             })
