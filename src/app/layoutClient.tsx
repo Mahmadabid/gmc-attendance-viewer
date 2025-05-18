@@ -4,6 +4,7 @@ import Header from "../components/Header";
 import { Analytics } from "@vercel/analytics/next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { useEffect, useState } from "react";
+import { QuartersProvider } from "@/components/lib/QuartersContext";
 
 const geistSans = Geist({
     variable: "--font-geist-sans",
@@ -155,7 +156,9 @@ export default function RootLayoutClient({
                         </span>
                     </button>
                 )}
-                {children}
+                <QuartersProvider>
+                  {children}
+                </QuartersProvider>
                 <div className="h-[70px]"></div>
             </body>
         </html>
