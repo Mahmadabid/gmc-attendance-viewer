@@ -1,5 +1,5 @@
 // public/sw.js
-const STATIC_CACHE = 'static-cache-v0.1';
+const STATIC_CACHE = 'static-cache-v0.2';
 const DATA_CACHE = 'data-cache-v1';
 
 // List all the URLs you need for offline — pages + public assets
