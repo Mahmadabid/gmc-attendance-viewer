@@ -270,6 +270,12 @@ const Attendance: React.FC = () => {
         </div>
       )}
 
+      {!isOnline && (
+        <div className="flex justify-center items-center mx-2 text-yellow-700 bg-yellow-100 border border-yellow-300 rounded p-2 mb-6 font-semibold">
+          <ExclamationTriangleIcon className="w-6 h-6 text-yellow-700 mr-2" />
+          You are in offline mode. Data may be outdated.
+        </div>
+      )}
       <div className="flex justify-center mb-4">
         <div className="flex flex-row items-center gap-4">
           <h1 className="text-4xl font-bold text-secondary text-center">Attendance</h1>
