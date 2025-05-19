@@ -133,14 +133,15 @@ const Attendance: React.FC = () => {
     };
 
     const load = async () => {
-      setLoading(true);
 
       if (FetchOnFirstPageLoad === null) {
         // Show cache quickly (if available), then fetch fresh in background
         await loadFromCacheIfAvailable();
+        setLoading(true);
         fetchFreshAttendance(); // no await — fire and forget
       } else {
         // Directly fetch fresh data
+        setLoading(true);
         await fetchFreshAttendance();
       }
     };
