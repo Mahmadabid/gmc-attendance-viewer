@@ -45,6 +45,7 @@ const Attendance: React.FC = () => {
   const [selectedQuarterIdx, setSelectedQuarterIdx] = useState<number>(-1); // -1 means whole year
   const [quarters, setQuarters] = useState<Quarter[]>([]);
   const [refreshCount, setRefreshCount] = useState(0);
+  const [backgroundFetching, setBackgroundFetching] = useState(false);
   const isOnline = useIsOnline();
 
   // Load quarters from localStorage on mount and when quarters change
@@ -65,20 +66,51 @@ const Attendance: React.FC = () => {
     return () => window.removeEventListener('quarters-changed', handler);
   }, []);
 
+  const getMatchingCache = async (prefix: string) => {
+    if (!('caches' in window)) return null;
+
+    const cacheNames = await caches.keys();
+    const matchingName = cacheNames.find(name => name.startsWith(prefix));
+
+    if (matchingName) {
+      return await caches.open(matchingName);
+    }
+
+    return null;
+  };
+
+  const getCachedAttendance = async () => {
+    const cache = await getMatchingCache('data-cache-v');
+    if (cache) {
+      const cachedResponse = await cache.match(FetchURL);
+      if (cachedResponse) {
+        const data = await cachedResponse.json();
+        return data;
+      }
+    }
+    return null;
+  };
+
   useEffect(() => {
-    // Patch: Detect offline status using navigator.onLine for this effect only
     const actuallyOnline = typeof navigator !== 'undefined' ? navigator.onLine : isOnline;
-    const fetchAttendance = async () => {
-      setLoading(true);
+    const FetchOnFirstPageLoad = sessionStorage.getItem("FetchOnFirstPageLoad");
+
+    const loadFromCacheIfAvailable = async () => {
+      const cachedData = await getCachedAttendance();
+      if (cachedData?.attendance) {
+        setAttendance(cachedData.attendance.slice().reverse());
+        setLoggedIn(cachedData.loggedIn ?? true);
+        setLoading(false);
+      }
+    };
+
+    const fetchFreshAttendance = async () => {
       try {
-        const FetchOnFirstPageLoad = sessionStorage.getItem("FetchOnFirstPageLoad");
-        // Always add refresh=true when refresh button is pressed
-        // Use actuallyOnline instead of isOnline
+        setBackgroundFetching(true);
         const refreshParam = (refreshCount > 0 || FetchOnFirstPageLoad === null) && actuallyOnline ? '?refresh=true' : '';
         const res = await fetch(`${FetchURL}${refreshParam}`, {
           method: 'GET',
           credentials: 'include',
-          // Always use no-cache to ensure service worker intercepts the request
           cache: 'no-cache',
         });
         if (!res.ok) throw new Error('Failed to fetch attendance');
@@ -86,7 +118,7 @@ const Attendance: React.FC = () => {
 
         if (data.attendance && data.loggedIn) {
           setLoggedIn(data.loggedIn);
-          setAttendance((data.attendance || []).slice().reverse());
+          setAttendance(data.attendance.slice().reverse());
           sessionStorage.setItem("FetchOnFirstPageLoad", "false");
         } else {
           setLoggedIn(false);
@@ -96,9 +128,24 @@ const Attendance: React.FC = () => {
         setError(err.message || 'Unknown error');
       } finally {
         setLoading(false);
+        setBackgroundFetching(false);
       }
     };
-    fetchAttendance();
+
+    const load = async () => {
+      setLoading(true);
+
+      if (FetchOnFirstPageLoad === null) {
+        // Show cache quickly (if available), then fetch fresh in background
+        await loadFromCacheIfAvailable();
+        fetchFreshAttendance(); // no await — fire and forget
+      } else {
+        // Directly fetch fresh data
+        await fetchFreshAttendance();
+      }
+    };
+
+    load();
   }, [refreshCount]);
 
   // Filter attendance by quarter if quarters are present
@@ -194,12 +241,13 @@ const Attendance: React.FC = () => {
           {/* Refresh or Offline button styled as icon button */}
           {isOnline ? (
             <button
-              className="flex items-center gap-2 px-4 max-[520px]:px-2 py-2 rounded bg-accent text-white font-semibold hover:bg-secondary/80 transition-colors shadow-md"
+              className="flex items-center gap-2 px-4 max-[520px]:px-2 py-2 rounded bg-accent disabled:bg-accent/70 text-white font-semibold hover:bg-secondary/80 transition-colors shadow-md"
               onClick={() => setRefreshCount(c => c + 1)}
               title="Refresh attendance"
+              disabled={backgroundFetching}
             >
-              <ArrowPathIcon className="w-6 h-6" />
-              <span className="hidden min-[520px]:inline">Refresh</span>
+              <ArrowPathIcon className={`w-6 h-6 ${backgroundFetching && 'animate-spin'}`} />
+              <span className="hidden min-[520px]:inline">{backgroundFetching ? 'Refreshing...' : 'Refresh'}</span>
             </button>
           ) : (
             <div className="flex items-center gap-2 px-4 max-[520px]:px-2 py-2 rounded bg-red-400 text-white font-semibold shadow-md cursor-not-allowed select-none" title="Offline mode">

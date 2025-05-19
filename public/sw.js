@@ -1,6 +1,6 @@
 // public/sw.js
-const STATIC_CACHE = 'static-cache-v3';
-const DATA_CACHE = 'data-cache-v3';
+const STATIC_CACHE = 'static-cache-v0.1';
+const DATA_CACHE = 'data-cache-v0.1';
 const FETCH_URL = '/api/data';
 
 // List all the URLs you need for offline — pages + public assets
