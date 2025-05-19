@@ -12,6 +12,7 @@ import { ArrowPathIcon, WifiIcon } from '@heroicons/react/24/outline';
 import { useIsOnline } from './lib/context/IsOnlineContext';
 import { ExclamationTriangleIcon } from '@heroicons/react/24/solid';
 import { FetchURL } from './lib/utils';
+import { CheckCircleIcon } from '@heroicons/react/16/solid';
 
 export interface AttendanceRow {
   subject: string;
@@ -44,9 +45,9 @@ const Attendance: React.FC = () => {
   const [selectedSubject, setSelectedSubject] = useState<string | null>(null);
   const [selectedQuarterIdx, setSelectedQuarterIdx] = useState<number>(-1); // -1 means whole year
   const [quarters, setQuarters] = useState<Quarter[]>([]);
-  const [refreshCount, setRefreshCount] = useState(0);
   const [backgroundFetching, setBackgroundFetching] = useState(false);
-  const [hasCachedData, setHasCachedData] = useState(false);
+  const [refreshClicked, setRefreshClicked] = useState(false);
+  const [dataUpdated, setDataUpdated] = useState(false);
   const isOnline = useIsOnline();
 
   // Load quarters from localStorage on mount and when quarters change
@@ -81,7 +82,7 @@ const Attendance: React.FC = () => {
   };
 
   const getCachedAttendance = async () => {
-    const cache = await getMatchingCache('data-cache-v');
+    const cache = await getMatchingCache('data-cache');
     if (cache) {
       const cachedResponse = await cache.match(FetchURL);
       if (cachedResponse) {
@@ -95,41 +96,59 @@ const Attendance: React.FC = () => {
   useEffect(() => {
     const actuallyOnline = typeof navigator !== 'undefined' ? navigator.onLine : isOnline;
     const FetchOnFirstPageLoad = sessionStorage.getItem("FetchOnFirstPageLoad");
+    let hasCachedData = false;
 
     const loadFromCacheIfAvailable = async () => {
       const cachedData = await getCachedAttendance();
+      console.log(cachedData)
       if (cachedData?.attendance) {
         setAttendance(cachedData.attendance.slice().reverse());
         setLoggedIn(cachedData.loggedIn ?? true);
-        setHasCachedData(true);
+        hasCachedData = true;
       }
     };
 
     const fetchFreshAttendance = async () => {
-      try {
-        setBackgroundFetching(true);
-        const refreshParam = (refreshCount > 0 || FetchOnFirstPageLoad === null) && actuallyOnline ? '?refresh=true' : '';
-        const res = await fetch(`${FetchURL}${refreshParam}`, {
-          method: 'GET',
-          credentials: 'include',
-          cache: 'no-cache',
-        });
-        if (!res.ok) throw new Error('Failed to fetch attendance');
-        const data = await res.json();
+      if ((refreshClicked || FetchOnFirstPageLoad === null) && actuallyOnline) {
+        try {
+          setBackgroundFetching(true);
+          const res = await fetch(`${FetchURL}`, {
+            method: 'GET',
+            credentials: 'include',
+          });
 
-        if (data.attendance && data.loggedIn) {
-          setLoggedIn(data.loggedIn);
-          setAttendance(data.attendance.slice().reverse());
-          sessionStorage.setItem("FetchOnFirstPageLoad", "false");
-        } else {
-          setLoggedIn(false);
-          setAttendance([]);
+          if (!res.ok) throw new Error('Failed to fetch attendance');
+          const data = await res.json();
+
+          if (data.attendance && data.loggedIn) {
+            setLoggedIn(data.loggedIn);
+            setAttendance(data.attendance.slice().reverse());
+            sessionStorage.setItem("FetchOnFirstPageLoad", "false");
+            setRefreshClicked(false);
+            setDataUpdated(true);
+
+            if ('caches' in window) {
+              const cache = await caches.open('data-cache-v1');
+              await cache.put(
+                FetchURL,
+                new Response(JSON.stringify(data), {
+                  headers: { 'Content-Type': 'application/json' },
+                })
+              );
+            }
+          } else {
+            setLoggedIn(false);
+            setAttendance([]);
+          }
+        } catch (err: any) {
+          setError(err.message || 'Unknown error');
+        } finally {
+          setLoading(false);
+          setBackgroundFetching(false);
         }
-      } catch (err: any) {
-        setError(err.message || 'Unknown error');
-      } finally {
+      } else {
+        await loadFromCacheIfAvailable();
         setLoading(false);
-        setBackgroundFetching(false);
       }
     };
 
@@ -141,14 +160,20 @@ const Attendance: React.FC = () => {
         setLoading(hasCachedData ? false : true);
         fetchFreshAttendance(); // no await — fire and forget
       } else {
-        // Directly fetch fresh data
-        setLoading(true);
         await fetchFreshAttendance();
       }
     };
 
     load();
-  }, [refreshCount]);
+  }, [refreshClicked]);
+
+  // Add useEffect to auto-hide the message after 2 seconds
+  useEffect(() => {
+    if (dataUpdated) {
+      const timer = setTimeout(() => setDataUpdated(false), 2000);
+      return () => clearTimeout(timer);
+    }
+  }, [dataUpdated]);
 
   // Filter attendance by quarter if quarters are present
   let attendanceInQuarter = attendance;
@@ -167,13 +192,20 @@ const Attendance: React.FC = () => {
     return (
       <div className='flex flex-col gap-3 justify-center items-center'>
         <div className="text-center font-semibold text-2xl mt-8 text-red-500">{error}</div>
-        <button className="mt-4 px-2 py-1 bg-primary text-white rounded hover:bg-secondary/80 transition-colors shadow-md" onClick={() => window.location.reload()}>
+        <button className="mt-4 px-2 py-1 bg-primary text-white rounded hover:bg-secondary/80 transition-colors shadow-md"
+          onClick={() => {
+            sessionStorage.removeItem("FetchOnFirstPageLoad");
+            window.location.reload()
+          }}
+        >
           Retry
         </button>
       </div>
     );
   }
-  if (!loggedIn) return <Login onRefresh={() => setRefreshCount(c => c + 1)} />;
+  if (!loggedIn) return <Login onRefresh={() => {
+    setRefreshClicked(true)
+  }} />;
 
   // Calculate stats
   const totalLectures = attendanceInQuarter.length;
@@ -231,12 +263,13 @@ const Attendance: React.FC = () => {
 
   return (
     <div className="mt-8 mx-1 mb-4">
-      {!isOnline && (
-        <div className="flex justify-center items-center mx-2 text-yellow-700 bg-yellow-100 border border-yellow-300 rounded p-2 mb-6 font-semibold">
-          <ExclamationTriangleIcon className="w-6 h-6 text-yellow-700 mr-2" />
-          You are in offline mode. Data may be outdated.
+      {/* Data Updated message */}
+      {dataUpdated && (
+        <div className="fixed left-1/2 -translate-x-1/2 flex items-center justify-center w-auto top-7 z-[102]">
+          <div className='flex flex-row gap-x-2 min-w-[250px] items-center justify-center bg-green-200 text-green-700 px-4 py-3 rounded-lg shadow-xl font-semibold animate-fade-in-out'>Data updated successfully <CheckCircleIcon className="w-5 h-5 text-green-700" /></div>
         </div>
       )}
+
       <div className="flex justify-center mb-4">
         <div className="flex flex-row items-center gap-4">
           <h1 className="text-4xl font-bold text-secondary text-center">Attendance</h1>
@@ -244,7 +277,9 @@ const Attendance: React.FC = () => {
           {isOnline ? (
             <button
               className="flex items-center gap-2 px-4 max-[520px]:px-2 py-2 rounded bg-accent disabled:bg-accent/70 text-white font-semibold hover:bg-secondary/80 transition-colors shadow-md"
-              onClick={() => setRefreshCount(c => c + 1)}
+              onClick={() => {
+                setRefreshClicked(true);
+              }}
               title="Refresh attendance"
               disabled={backgroundFetching}
             >
