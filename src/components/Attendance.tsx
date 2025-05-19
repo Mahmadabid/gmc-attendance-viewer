@@ -84,7 +84,7 @@ const Attendance: React.FC = () => {
         if (!res.ok) throw new Error('Failed to fetch attendance');
         const data = await res.json();
 
-        if (data.attendance && data.attendance.length > 0) {
+        if (data.attendance && data.loggedIn) {
           setLoggedIn(data.loggedIn);
           setAttendance((data.attendance || []).slice().reverse());
           sessionStorage.setItem("FetchOnFirstPageLoad", "false");
