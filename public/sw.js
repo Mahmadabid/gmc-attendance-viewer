@@ -33,6 +33,10 @@ self.addEventListener('activate', evt => {
 self.addEventListener('fetch', evt => {
   const { request } = evt;
 
+  if (request.url.includes('/api/data')) {
+    return; // Let the browser handle it, don't cache or respond
+  }
+
   // Handle static files
   evt.respondWith(
     caches.match(request).then(cachedRes => {
