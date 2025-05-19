@@ -46,6 +46,7 @@ const Attendance: React.FC = () => {
   const [quarters, setQuarters] = useState<Quarter[]>([]);
   const [refreshCount, setRefreshCount] = useState(0);
   const [backgroundFetching, setBackgroundFetching] = useState(false);
+  const [hasCachedData, setHasCachedData] = useState(false);
   const isOnline = useIsOnline();
 
   // Load quarters from localStorage on mount and when quarters change
@@ -100,6 +101,7 @@ const Attendance: React.FC = () => {
       if (cachedData?.attendance) {
         setAttendance(cachedData.attendance.slice().reverse());
         setLoggedIn(cachedData.loggedIn ?? true);
+        setHasCachedData(true);
       }
     };
 
@@ -136,7 +138,7 @@ const Attendance: React.FC = () => {
       if (FetchOnFirstPageLoad === null) {
         // Show cache quickly (if available), then fetch fresh in background
         await loadFromCacheIfAvailable();
-        setLoading(true);
+        setLoading(hasCachedData ? false : true);
         fetchFreshAttendance(); // no await — fire and forget
       } else {
         // Directly fetch fresh data
