@@ -100,7 +100,6 @@ const Attendance: React.FC = () => {
       if (cachedData?.attendance) {
         setAttendance(cachedData.attendance.slice().reverse());
         setLoggedIn(cachedData.loggedIn ?? true);
-        setLoading(false);
       }
     };
 
