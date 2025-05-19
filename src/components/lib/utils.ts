@@ -10,8 +10,3 @@ export function updateCookieMaxAgeAndExpires(setCookie: string, days: number): s
 }
 
 export const FetchURL = '/api/data';
-
-export enum FetchStatus {
-    true = 'true',
-    false = 'false',
-}
