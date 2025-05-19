@@ -33,24 +33,6 @@ self.addEventListener('activate', evt => {
 self.addEventListener('fetch', evt => {
   const { request } = evt;
 
-  // Handle API/data requests separately
-  if (request.url.includes('/api/data')) {
-    evt.respondWith(
-      caches.open(DATA_CACHE).then(cache =>
-        fetch(request)
-          .then(response => {
-            // clone & cache the response
-            if (response.status === 200) {
-              cache.put(request.url, response.clone());
-            }
-            return response;
-          })
-          .catch(() => cache.match(request)) // fallback to cache
-      )
-    );
-    return;
-  }
-
   // Handle static files
   evt.respondWith(
     caches.match(request).then(cachedRes => {
