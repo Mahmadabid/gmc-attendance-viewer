@@ -82,7 +82,7 @@ const Attendance: React.FC = () => {
   };
 
   const getCachedAttendance = async () => {
-    const cache = await getMatchingCache('data-cache');
+    const cache = await getMatchingCache('apis');
     if (cache) {
       const cachedResponse = await cache.match(FetchURL);
       if (cachedResponse) {
@@ -100,7 +100,7 @@ const Attendance: React.FC = () => {
 
     const loadFromCacheIfAvailable = async () => {
       const cachedData = await getCachedAttendance();
-      console.log(cachedData)
+
       if (cachedData?.attendance) {
         setAttendance(cachedData.attendance.slice().reverse());
         setLoggedIn(cachedData.loggedIn ?? true);
@@ -127,15 +127,15 @@ const Attendance: React.FC = () => {
             setRefreshClicked(false);
             setDataUpdated(true);
 
-            if ('caches' in window) {
-              const cache = await caches.open('data-cache-v1');
-              await cache.put(
-                FetchURL,
-                new Response(JSON.stringify(data), {
-                  headers: { 'Content-Type': 'application/json' },
-                })
-              );
-            }
+            // if ('caches' in window) {
+            //   const cache = await caches.open('data-cache-v1');
+            //   await cache.put(
+            //     FetchURL,
+            //     new Response(JSON.stringify(data), {
+            //       headers: { 'Content-Type': 'application/json' },
+            //     })
+            //   );
+            // }
           } else {
             setLoggedIn(false);
             setAttendance([]);
