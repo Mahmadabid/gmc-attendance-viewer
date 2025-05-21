@@ -171,12 +171,37 @@ const Attendance: React.FC = () => {
           });
 
           if (!res.ok) throw new Error('Failed to fetch attendance');
-          const data = await res.json(); if (data.attendance && data.loggedIn) {
+          const data = await res.json();
+
+          if (data.attendance && data.loggedIn) {
             setLoggedIn(data.loggedIn);
             // Make sure we properly sort the attendance data by date
             setAttendance(sortAttendance(data.attendance));
             sessionStorage.setItem("FetchOnFirstPageLoad", "false");
             setDataUpdated(true);
+
+            if ('caches' in window) {
+              const cache = await caches.open('apids');
+              await cache.put(
+                FetchURL,
+                new Response(JSON.stringify(data), {
+                  headers: { 'Content-Type': 'application/json' },
+                })
+              );
+            }
+          } else if (data.attendance && !data.loggedIn) {
+            if ('caches' in window) {
+              const cache = await caches.open('apis');
+              await cache.put(
+                FetchURL,
+                new Response(JSON.stringify(data), {
+                  headers: { 'Content-Type': 'application/json' },
+                })
+              );
+            }
+
+            setLoggedIn(data.loggedIn);
+            setAttendance(sortAttendance(data.attendance));
           } else {
             setLoggedIn(false);
             setAttendance([]);
@@ -209,6 +234,7 @@ const Attendance: React.FC = () => {
 
     load();
   }, [refreshClicked]);
+
   // Sort attendance when sortOrder changes
   useEffect(() => {
     // Re-sort the attendance data whenever the sort order changes
