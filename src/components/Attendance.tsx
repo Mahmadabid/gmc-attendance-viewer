@@ -203,12 +203,12 @@ const Attendance: React.FC = () => {
         fetchFreshAttendance(); // no await — fire and forget
       } else {
         await fetchFreshAttendance();
-        hasCachedData && sessionStorage.removeItem("FetchOnFirstPageLoad");
+        !hasCachedData && sessionStorage.removeItem("FetchOnFirstPageLoad");
       }
     };
 
     load();
-  }, [refreshClicked, sortOrder]);
+  }, [refreshClicked]);
   // Sort attendance when sortOrder changes
   useEffect(() => {
     // Re-sort the attendance data whenever the sort order changes
