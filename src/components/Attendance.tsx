@@ -419,6 +419,7 @@ const Attendance: React.FC = () => {
         < div className="text-center text-2xl mt-20 font-semibold flex flex-col gap-5 text-secondary/80">
           <span className='text-red-700'>No attendance yet</span>
           <span className='text-xl'>Your attendance record will appear here once uploaded.</span>
+          <span className='text-lg text-blue-500'>If you think this is a mistake press Refresh button.</span>
         </div>
       ) :
         <>
