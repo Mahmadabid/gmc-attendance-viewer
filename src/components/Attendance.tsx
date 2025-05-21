@@ -14,6 +14,9 @@ import { ExclamationTriangleIcon } from '@heroicons/react/24/solid';
 import { FetchURL } from './lib/utils';
 import { CheckCircleIcon } from '@heroicons/react/16/solid';
 
+// Add for cooldown message
+const REFRESH_COOLDOWN_MS = 60000;
+
 export interface AttendanceRow {
   subject: string;
   lectureType: string;
@@ -48,6 +51,14 @@ const Attendance: React.FC = () => {
   const [backgroundFetching, setBackgroundFetching] = useState(false);
   const [refreshClicked, setRefreshClicked] = useState(false);
   const [dataUpdated, setDataUpdated] = useState(false);
+  const [cooldownMessage, setCooldownMessage] = useState<string | null>(null);
+  const [cooldownSeconds, setCooldownSeconds] = useState<number>(0);
+  const [sortOrder, setSortOrder] = useState<'newest' | 'oldest'>(() => {
+    if (typeof window !== 'undefined') {
+      return (localStorage.getItem('attendanceSortOrder') as 'newest' | 'oldest') || 'newest';
+    }
+    return 'newest';
+  });
   const isOnline = useIsOnline();
 
   // Load quarters from localStorage on mount and when quarters change
@@ -66,7 +77,49 @@ const Attendance: React.FC = () => {
     const handler = () => loadQuarters();
     window.addEventListener('quarters-changed', handler);
     return () => window.removeEventListener('quarters-changed', handler);
-  }, []);
+  }, []);  // Helper to sort attendance based on date in DD/MM/YYYY format
+  const sortAttendance = (data: AttendanceRow[]) => {
+    if (!data || data.length === 0) return [];
+
+    return [...data].sort((a, b) => {
+      // Handle cases where date might be missing
+      if (!a.date) return sortOrder === 'newest' ? 1 : -1;
+      if (!b.date) return sortOrder === 'newest' ? -1 : 1;
+
+      try {
+        // Parse DD/MM/YYYY format correctly
+        const parseDate = (dateStr: string): number => {
+          const parts = dateStr.split('/');
+          // Make sure we have exactly 3 parts (day, month, year)
+          if (parts.length !== 3) return NaN;
+
+          // Convert to YYYY-MM-DD format which is reliable for parsing
+          const day = parts[0].padStart(2, '0');
+          const month = parts[1].padStart(2, '0');
+          const year = parts[2];
+
+          // Create date using a reliably parseable format
+          const date = new Date(`${year}-${month}-${day}T00:00:00`);
+          return date.getTime();
+        };
+
+        const dateA = parseDate(a.date);
+        const dateB = parseDate(b.date);
+
+        // If dates are invalid, treat them as missing
+        if (isNaN(dateA)) return sortOrder === 'newest' ? 1 : -1;
+        if (isNaN(dateB)) return sortOrder === 'newest' ? -1 : 1;
+
+        // Sort based on sortOrder
+        return sortOrder === 'newest'
+          ? dateB - dateA  // For newest first, later dates come first (descending)
+          : dateA - dateB; // For oldest first, earlier dates come first (ascending)
+      } catch (e) {
+        // If any error in date parsing, default to original order
+        return 0;
+      }
+    });
+  };
 
   const getMatchingCache = async (prefix: string) => {
     if (!('caches' in window)) return null;
@@ -100,9 +153,9 @@ const Attendance: React.FC = () => {
 
     const loadFromCacheIfAvailable = async () => {
       const cachedData = await getCachedAttendance();
-
       if (cachedData?.attendance) {
-        setAttendance(cachedData.attendance.slice().reverse());
+        // Make sure we properly sort the cached attendance data by date
+        setAttendance(sortAttendance(cachedData.attendance));
         setLoggedIn(cachedData.loggedIn ?? true);
         hasCachedData = true;
       }
@@ -118,23 +171,12 @@ const Attendance: React.FC = () => {
           });
 
           if (!res.ok) throw new Error('Failed to fetch attendance');
-          const data = await res.json();
-
-          if (data.attendance && data.loggedIn) {
+          const data = await res.json(); if (data.attendance && data.loggedIn) {
             setLoggedIn(data.loggedIn);
-            setAttendance(data.attendance.slice().reverse());
+            // Make sure we properly sort the attendance data by date
+            setAttendance(sortAttendance(data.attendance));
             sessionStorage.setItem("FetchOnFirstPageLoad", "false");
             setDataUpdated(true);
-
-            // if ('caches' in window) {
-            //   const cache = await caches.open('data-cache-v1');
-            //   await cache.put(
-            //     FetchURL,
-            //     new Response(JSON.stringify(data), {
-            //       headers: { 'Content-Type': 'application/json' },
-            //     })
-            //   );
-            // }
           } else {
             setLoggedIn(false);
             setAttendance([]);
@@ -161,19 +203,43 @@ const Attendance: React.FC = () => {
         fetchFreshAttendance(); // no await — fire and forget
       } else {
         await fetchFreshAttendance();
+        hasCachedData && sessionStorage.removeItem("FetchOnFirstPageLoad");
       }
     };
 
     load();
-  }, [refreshClicked]);
+  }, [refreshClicked, sortOrder]);
+  // Sort attendance when sortOrder changes
+  useEffect(() => {
+    // Re-sort the attendance data whenever the sort order changes
+    setAttendance(prev => sortAttendance(prev));
+  }, [sortOrder]);
 
-  // Add useEffect to auto-hide the message after 2 seconds
+  // Auto-hide the data updated message after 2 seconds
   useEffect(() => {
     if (dataUpdated) {
       const timer = setTimeout(() => setDataUpdated(false), 2000);
       return () => clearTimeout(timer);
     }
   }, [dataUpdated]);
+
+  // Add effect to make cooldown message disappear after 2 seconds
+  useEffect(() => {
+    if (cooldownMessage) {
+      const timer = setTimeout(() => setCooldownMessage(null), 2000);
+      return () => clearTimeout(timer);
+    }
+  }, [cooldownMessage]);
+
+  // Cooldown timer effect - only handles the countdown
+  useEffect(() => {
+    if (cooldownSeconds > 0) {
+      const timer = setInterval(() => {
+        setCooldownSeconds(prev => (prev <= 1 ? 0 : prev - 1));
+      }, 1000);
+      return () => clearInterval(timer);
+    }
+  }, [cooldownSeconds]);
 
   // Filter attendance by quarter if quarters are present
   let attendanceInQuarter = attendance;
@@ -200,17 +266,18 @@ const Attendance: React.FC = () => {
         >
           Retry
         </button>
+        <p className='font-semibold text-secondary mt-4'>Click this button if retry doesnt work. This will clear all data and log you out. It wont affect your quarters.</p>
         {/* Add other button to clear everything */}
         <button
           className="px-2 py-1 mt-2 bg-red-500 text-white rounded hover:bg-red-700 transition-colors shadow-md"
-          onClick={() => {
+          onClick={async () => {
             sessionStorage.clear();
-            localStorage.clear();
             if ('caches' in window) {
               caches.keys().then(names => {
                 for (const name of names) caches.delete(name);
               });
             }
+            await fetch('/api/logout');
             window.location.reload();
           }}
         >
@@ -286,7 +353,14 @@ const Attendance: React.FC = () => {
           <div className='flex flex-row gap-x-2 min-w-[250px] items-center justify-center bg-green-200 text-green-700 px-4 py-3 rounded-lg shadow-xl font-semibold animate-fade-in-out'>Data updated successfully <CheckCircleIcon className="w-5 h-5 text-green-700" /></div>
         </div>
       )}
-
+      {/* Cooldown message */}
+      {cooldownMessage && (
+        <div className="fixed left-1/2 -translate-x-1/2 flex items-center justify-center w-auto top-7 z-[103]">
+          <div className='flex flex-row gap-x-2 min-w-[250px] items-center justify-center bg-red-200 text-red-700 px-4 py-3 rounded-lg shadow-xl font-semibold animate-fade-in-out'>
+            {cooldownMessage}
+          </div>
+        </div>
+      )}
       {!isOnline && (
         <div className="flex justify-center items-center mx-2 text-yellow-700 bg-yellow-100 border border-yellow-300 rounded p-2 mb-6 font-semibold">
           <ExclamationTriangleIcon className="min-w-6 w-6 h-6 min-h-6 text-yellow-700 mr-2" />
@@ -299,8 +373,21 @@ const Attendance: React.FC = () => {
           {/* Refresh or Offline button styled as icon button */}
           {isOnline ? (
             <button
-              className="flex items-center gap-2 px-4 max-[520px]:px-2 py-2 rounded bg-accent disabled:bg-accent/70 text-white font-semibold hover:bg-secondary/80 transition-colors shadow-md"
-              onClick={() => {
+              className="flex items-center gap-2 px-4 max-[520px]:px-2 py-2 rounded bg-accent disabled:bg-accent/70 text-white font-semibold hover:bg-secondary/80 transition-colors shadow-md" onClick={() => {
+                // Cooldown logic
+                const lastRefresh = sessionStorage.getItem('lastRefreshTime');
+                const now = Date.now();
+                if (lastRefresh) {
+                  const diff = now - parseInt(lastRefresh, 10);
+                  if (diff < REFRESH_COOLDOWN_MS) {
+                    const secondsLeft = Math.ceil((REFRESH_COOLDOWN_MS - diff) / 1000);
+                    setCooldownMessage(`Please wait ${secondsLeft} second${secondsLeft !== 1 ? 's' : ''} before refreshing again.`);
+                    setCooldownSeconds(secondsLeft);
+                    setDataUpdated(false); // Hide green message if showing
+                    return;
+                  }
+                }
+                sessionStorage.setItem('lastRefreshTime', now.toString());
                 setRefreshClicked(true);
               }}
               title="Refresh attendance"
@@ -360,6 +447,23 @@ const Attendance: React.FC = () => {
               <AttendanceSummaryTable stats={{ total: totalLectures, present, absent, leave, percentage }} />
             )
           }
+
+          {/* Sort order selector */}
+          <div className="flex justify-center items-center mb-2">
+            <label className="font-semibold mr-2">Order:</label>
+            <select
+              className="border rounded cursor-pointer px-2 py-1 outline-0 focus:ring-0 text-secondary font-semibold bg-white"
+              value={sortOrder}
+              onChange={e => {
+                const value = e.target.value as 'newest' | 'oldest';
+                setSortOrder(value);
+                localStorage.setItem('attendanceSortOrder', value);
+              }}
+            >
+              <option value="newest">Newest First</option>
+              <option value="oldest">Oldest First</option>
+            </select>
+          </div>
 
           <AttendanceTable attendance={filteredAttendance} keyMap={keyMap} />
         </>
