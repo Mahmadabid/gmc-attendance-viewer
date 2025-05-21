@@ -200,6 +200,22 @@ const Attendance: React.FC = () => {
         >
           Retry
         </button>
+        {/* Add other button to clear everything */}
+        <button
+          className="px-2 py-1 mt-2 bg-red-500 text-white rounded hover:bg-red-700 transition-colors shadow-md"
+          onClick={() => {
+            sessionStorage.clear();
+            localStorage.clear();
+            if ('caches' in window) {
+              caches.keys().then(names => {
+                for (const name of names) caches.delete(name);
+              });
+            }
+            window.location.reload();
+          }}
+        >
+          Clear All Data
+        </button>
       </div>
     );
   }
