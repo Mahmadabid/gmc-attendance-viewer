@@ -37,10 +37,7 @@ const Login: React.FC<LoginProps> = ({ onRefresh }) => {
         setMessage('Login successful!');
         setMessageType('success');
         onRefresh();
-        // Notify SW to cache attendance data
-        if (navigator.serviceWorker && navigator.serviceWorker.controller) {
-          navigator.serviceWorker.controller.postMessage({ type: 'CACHE_ATTENDANCE' });
-        }
+        // Removed manual SW postMessage for Serwist
       } else {
         setMessage('Login failed: ' + (data.error || 'Unknown error'));
         setMessageType('error');
@@ -57,7 +54,7 @@ const Login: React.FC<LoginProps> = ({ onRefresh }) => {
     <div className={`${isOnline ? 'mt-16' : 'mt-6'}`}>
       {!isOnline && (
         <div className="flex justify-center items-center mx-2 text-red-700 bg-red-100 border border-red-300 rounded p-2 mb-6 font-semibold">
-          <ExclamationTriangleIcon className="w-6 h-6 text-red-700 mr-2" />
+          <ExclamationTriangleIcon className="min-w-6 min-h-6 text-red-700 mr-2" />
           You are Offline. Please check your internet connection.
         </div>
       )}

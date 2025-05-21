@@ -124,7 +124,6 @@ const Attendance: React.FC = () => {
             setLoggedIn(data.loggedIn);
             setAttendance(data.attendance.slice().reverse());
             sessionStorage.setItem("FetchOnFirstPageLoad", "false");
-            setRefreshClicked(false);
             setDataUpdated(true);
 
             // if ('caches' in window) {
@@ -145,6 +144,7 @@ const Attendance: React.FC = () => {
         } finally {
           setLoading(false);
           setBackgroundFetching(false);
+          setRefreshClicked(false);
         }
       } else {
         await loadFromCacheIfAvailable();
@@ -204,7 +204,8 @@ const Attendance: React.FC = () => {
     );
   }
   if (!loggedIn) return <Login onRefresh={() => {
-    setRefreshClicked(true)
+    setLoading(true);
+    setRefreshClicked(true);
   }} />;
 
   // Calculate stats
@@ -272,7 +273,7 @@ const Attendance: React.FC = () => {
 
       {!isOnline && (
         <div className="flex justify-center items-center mx-2 text-yellow-700 bg-yellow-100 border border-yellow-300 rounded p-2 mb-6 font-semibold">
-          <ExclamationTriangleIcon className="w-6 h-6 text-yellow-700 mr-2" />
+          <ExclamationTriangleIcon className="min-w-6 min-h-6 text-yellow-700 mr-2" />
           You are in offline mode. Data may be outdated.
         </div>
       )}

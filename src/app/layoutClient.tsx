@@ -39,19 +39,6 @@ export default function RootLayoutClient({
         const isSafari = /^((?!chrome|android).)*safari/i.test(userAgent);
         setIsIOS(isIOSDevice && isSafari);
 
-        if ("serviceWorker" in navigator) {
-            navigator.serviceWorker
-                .register("/sw.js")
-                .then((registration) => {
-                    console.log("[PWA] Service Worker registered with scope:", registration.scope);
-                })
-                .catch((error) => {
-                    console.error("[PWA] Service Worker registration failed:", error);
-                });
-        } else {
-            console.warn("[PWA] Service Worker not supported in this browser.");
-        }
-
         // Check if the event was already captured (either before or after component mounted)
         if (window.deferredPWAInstallPrompt) {
             console.log('[PWA] Found existing install prompt on mount');

@@ -9,4 +9,4 @@ export function updateCookieMaxAgeAndExpires(setCookie: string, days: number): s
         .replace(/expires=[^;]+;/i, `expires=${newExpires};`);
 }
 
-export const FetchURL = '/api/data';
+export const FetchURL = '/api/dummy';

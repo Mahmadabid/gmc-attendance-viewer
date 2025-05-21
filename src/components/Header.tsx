@@ -56,7 +56,7 @@ export default function Header() {
                                         const cacheNames = await caches.keys();
                                         await Promise.all(
                                             cacheNames
-                                                .filter(name => name.startsWith('data-cache'))
+                                                .filter(name => name.startsWith('apis'))
                                                 .map(name => caches.delete(name))
                                         );
                                     }
