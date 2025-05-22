@@ -195,30 +195,30 @@ const Attendance: React.FC = () => {
             sessionStorage.setItem("FetchOnFirstPageLoad", "false");
             setDataUpdated(true);
 
-            // if ('caches' in window) {
-            //   const cache = await caches.open('apis');
-            //   await cache.put(
-            //     FetchURL,
-            //     new Response(JSON.stringify(data), {
-            //       headers: { 'Content-Type': 'application/json' },
-            //     })
-            //   );
-            // }
+            if ('caches' in window) {
+              const cache = await caches.open('apis');
+              await cache.put(
+                FetchURL,
+                new Response(JSON.stringify(data), {
+                  headers: { 'Content-Type': 'application/json' },
+                })
+              );
+            }
           }
-          //  else if (data.attendance && !data.loggedIn) {
-          //   if ('caches' in window) {
-          //     const cache = await caches.open('apis');
-          //     await cache.put(
-          //       FetchURL,
-          //       new Response(JSON.stringify(data), {
-          //         headers: { 'Content-Type': 'application/json' },
-          //       })
-          //     );
-          //   }
+           else if (data.attendance && !data.loggedIn) {
+            if ('caches' in window) {
+              const cache = await caches.open('apis');
+              await cache.put(
+                FetchURL,
+                new Response(JSON.stringify(data), {
+                  headers: { 'Content-Type': 'application/json' },
+                })
+              );
+            }
 
-          //   setLoggedIn(data.loggedIn);
-          //   setAttendance(sortAttendance(data.attendance));
-          // }
+            setLoggedIn(data.loggedIn);
+            setAttendance(sortAttendance(data.attendance));
+          }
           else {
             setLoggedIn(false);
             setAttendance([]);
