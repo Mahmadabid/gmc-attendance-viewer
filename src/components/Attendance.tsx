@@ -178,7 +178,6 @@ const Attendance: React.FC = () => {
       if ((refreshClicked || FetchOnFirstPageLoad === null) && actuallyOnline) {
         try {
           setBackgroundFetching(true);
-          console.log('Fetching fresh attendance data...,', Math.random() * 100);
           const res = await fetch(`${FetchURL}`, {
             method: 'GET',
             credentials: 'include',
