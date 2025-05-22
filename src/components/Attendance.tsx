@@ -175,7 +175,7 @@ const Attendance: React.FC = () => {
     };
 
     const fetchFreshAttendance = async () => {
-      console.log(loading, 'hello')
+
       if ((refreshClicked || FetchOnFirstPageLoad === null) && actuallyOnline) {
         try {
           setBackgroundFetching(true);

@@ -23,7 +23,7 @@ const Login: React.FC<LoginProps> = ({ onRefresh }) => {
       sessionStorage.removeItem('FetchOnFirstPageLoad');
     }
   }, []);
-console.log(loginLoading, 'hola')
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoginLoading(true);
@@ -52,7 +52,7 @@ console.log(loginLoading, 'hola')
       setMessage('An error occurred during login.');
       setMessageType('error');
     } finally {
-      console.log(loginLoading, 'bye')
+
     }
   };
 
