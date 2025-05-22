@@ -241,6 +241,7 @@ const Attendance: React.FC = () => {
         // Show cache quickly (if available), then fetch fresh in background
         await loadFromCacheIfAvailable();
         setLoading(hasCachedData ? false : true);
+        console.log(hasCachedData)
         fetchFreshAttendance(); // no await — fire and forget
         !loggedIn && sessionStorage.removeItem("FetchOnFirstPageLoad");
       } else {

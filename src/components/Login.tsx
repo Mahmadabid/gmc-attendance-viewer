@@ -12,7 +12,7 @@ interface LoginProps {
 const Login: React.FC<LoginProps> = ({ onRefresh }) => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const [loginLoading, setLoginLoading] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [messageType, setMessageType] = useState<'success' | 'error' | null>(null);
 
@@ -26,8 +26,7 @@ const Login: React.FC<LoginProps> = ({ onRefresh }) => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoginLoading(true);
-    console.log(loginLoading)
+    setLoading(true);
     try {
       const res = await fetch('/api/login', {
         method: 'POST',
@@ -43,7 +42,6 @@ const Login: React.FC<LoginProps> = ({ onRefresh }) => {
       if (data.success) {
         setMessage('Login successful!');
         setMessageType('success');
-        console.log('Login successful', loginLoading);
         onRefresh();
         // Removed manual SW postMessage for Serwist
       } else {
@@ -54,7 +52,7 @@ const Login: React.FC<LoginProps> = ({ onRefresh }) => {
       setMessage('An error occurred during login.');
       setMessageType('error');
     } finally {
-console.log(loginLoading, 'bue')
+      setLoading(false);
     }
   };
 
@@ -87,7 +85,7 @@ console.log(loginLoading, 'bue')
               onChange={e => setUsername(e.target.value)}
               required
               className="w-full px-3 py-2 border border-secondary/40 rounded bg-white text-primary focus:outline-none focus:ring-2 focus:ring-accent"
-              disabled={loginLoading}
+              disabled={loading}
             />
           </div>
           <div className="mb-4">
@@ -99,15 +97,15 @@ console.log(loginLoading, 'bue')
               onChange={e => setPassword(e.target.value)}
               required
               className="w-full px-3 py-2 border border-secondary/40 rounded bg-white text-primary focus:outline-none focus:ring-2 focus:ring-accent"
-              disabled={loginLoading}
+              disabled={loading}
             />
           </div>
           <button
             type="submit"
             className="w-full py-2 rounded bg-primary flex justify-center items-center text-white font-semibold text-lg hover:bg-secondary transition-colors"
-            disabled={loginLoading || !isOnline}
+            disabled={loading || !isOnline}
           >
-            {loginLoading ? <SimpleSpinner /> : 'Login'}
+            {loading ? <SimpleSpinner /> : 'Login'}
           </button>
         </form>
       </div>
