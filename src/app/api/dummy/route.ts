@@ -8,7 +8,7 @@ export async function GET(req: NextRequest) {
         const userAgent = req.headers.get('user-agent') || '';
 
         if (!sessionCookie) {
-            return NextResponse.json({ loggedIn: false }, { status: 200 });
+            return NextResponse.json({ loggedIn: false, attendance: [] }, { status: 200 });
         }
 
         // If session exists, fetch attendance page

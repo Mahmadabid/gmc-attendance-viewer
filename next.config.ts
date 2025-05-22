@@ -7,6 +7,9 @@ const withSerwist = withSerwistInit({
   cacheOnNavigation: true,
   reloadOnOnline: true,
   disable: process.env.NODE_ENV === "development",
+  exclude: [
+    /\/api\/data/, // Exclude API routes from being precached
+  ],
 });
 
 const nextConfig: NextConfig = {
