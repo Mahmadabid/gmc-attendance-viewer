@@ -63,16 +63,6 @@ export default function Header() {
                                     await fetch('/api/logout');
                                 } finally {
                                     sessionStorage.clear();
-                                    // Delete all IndexedDB databases
-                                    if (window.indexedDB && indexedDB.databases) {
-                                        const dbs = await indexedDB.databases();
-                                        await Promise.all(
-                                            dbs
-                                                .map(db => db.name)
-                                                .filter((name): name is string => typeof name === 'string')
-                                                .map(name => indexedDB.deleteDatabase(name))
-                                        );
-                                    }
                                     window.location.reload();
                                 }
                             }}
