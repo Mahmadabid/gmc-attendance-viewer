@@ -170,7 +170,7 @@ const Attendance: React.FC = () => {
         // Make sure we properly sort the cached attendance data by date
         setAttendance(sortAttendance(cachedData.attendance));
         setLoggedIn(cachedData.loggedIn ?? true);
-        hasCachedData = true;
+        hasCachedData = cachedData.attendance.length > 0 && true;
       }
     };
 
@@ -241,7 +241,6 @@ const Attendance: React.FC = () => {
         // Show cache quickly (if available), then fetch fresh in background
         await loadFromCacheIfAvailable();
         setLoading(hasCachedData ? false : true);
-        console.log(hasCachedData)
         fetchFreshAttendance(); // no await — fire and forget
         !loggedIn && sessionStorage.removeItem("FetchOnFirstPageLoad");
       } else {
