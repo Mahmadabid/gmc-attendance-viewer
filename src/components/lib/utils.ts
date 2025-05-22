@@ -10,3 +10,5 @@ export function updateCookieMaxAgeAndExpires(setCookie: string, days: number): s
 }
 
 export const FetchURL = '/api/data';
+
+export const baseURL = process.env.NEXT_PUBLIC_BASE_URL || 'https://gmc-attendance-viewer.vercel.app/';

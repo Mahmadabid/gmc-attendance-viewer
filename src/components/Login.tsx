@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { SimpleSpinner } from './Spinner';
 import { useIsOnline } from './lib/context/IsOnlineContext';
 import { ExclamationTriangleIcon } from '@heroicons/react/16/solid';
@@ -17,6 +17,12 @@ const Login: React.FC<LoginProps> = ({ onRefresh }) => {
   const [messageType, setMessageType] = useState<'success' | 'error' | null>(null);
 
   const isOnline = useIsOnline();
+
+  useEffect(() => {
+    if (sessionStorage.getItem('FetchOnFirstPageLoad') === 'false') {
+      sessionStorage.removeItem('FetchOnFirstPageLoad');
+    }
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

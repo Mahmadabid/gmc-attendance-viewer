@@ -46,7 +46,13 @@ const Attendance: React.FC = () => {
   const [loggedIn, setLoggedIn] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedSubject, setSelectedSubject] = useState<string | null>(null);
-  const [selectedQuarterIdx, setSelectedQuarterIdx] = useState<number>(-1); // -1 means whole year
+  const [selectedQuarterIdx, setSelectedQuarterIdx] = useState<number>(() => {
+    if (typeof window !== 'undefined') {
+      const stored = localStorage.getItem('selectedQuarterIdx');
+      if (stored !== null) return parseInt(stored, 10);
+    }
+    return -1; // -1 means whole year
+  });
   const [quarters, setQuarters] = useState<Quarter[]>([]);
   const [backgroundFetching, setBackgroundFetching] = useState(false);
   const [refreshClicked, setRefreshClicked] = useState(false);
@@ -77,7 +83,16 @@ const Attendance: React.FC = () => {
     const handler = () => loadQuarters();
     window.addEventListener('quarters-changed', handler);
     return () => window.removeEventListener('quarters-changed', handler);
-  }, []);  // Helper to sort attendance based on date in DD/MM/YYYY format
+  }, []);
+
+  // Store selectedQuarterIdx in localStorage whenever it changes
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('selectedQuarterIdx', selectedQuarterIdx.toString());
+    }
+  }, [selectedQuarterIdx]);
+
+  // Helper to sort attendance based on date in DD/MM/YYYY format
   const sortAttendance = (data: AttendanceRow[]) => {
     if (!data || data.length === 0) return [];
 
