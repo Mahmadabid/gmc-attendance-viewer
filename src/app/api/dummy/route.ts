@@ -86,7 +86,7 @@ export async function GET(req: NextRequest) {
         // Fetch dummy attendance from Supabase and add to attendance (newest first)
         const dummyRes = await fetch('https://gmc-attendance-testing.vercel.app/api/dummy');
         const dummyData = await dummyRes.json();
-        const dummyRows = dummyData?.attendance || [];
+        const dummyRows = dummyData?.mapped || [];
         console.log('Dummy rows:', dummyRows);
         if (dummyRows && dummyRows.length > 0) {
             // Map snake_case to camelCase for AttendanceRow

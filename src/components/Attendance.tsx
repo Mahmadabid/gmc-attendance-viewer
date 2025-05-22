@@ -178,6 +178,7 @@ const Attendance: React.FC = () => {
       if ((refreshClicked || FetchOnFirstPageLoad === null) && actuallyOnline) {
         try {
           setBackgroundFetching(true);
+          console.log('Fetching fresh attendance data...,', Math.random() * 100);
           const res = await fetch(`${FetchURL}`, {
             method: 'GET',
             credentials: 'include',
@@ -185,7 +186,6 @@ const Attendance: React.FC = () => {
 
           if (!res.ok) throw new Error('Failed to fetch attendance');
           const data = await res.json();
-          console.log(Math.random()*100)
 
           if (data.attendance && data.loggedIn) {
             setLoggedIn(data.loggedIn);
@@ -204,7 +204,7 @@ const Attendance: React.FC = () => {
               );
             }
           }
-           else if (data.attendance && !data.loggedIn) {
+          else if (data.attendance && !data.loggedIn) {
             if ('caches' in window) {
               const cache = await caches.open('api-data');
               await cache.put(
@@ -242,9 +242,10 @@ const Attendance: React.FC = () => {
         await loadFromCacheIfAvailable();
         setLoading(hasCachedData ? false : true);
         fetchFreshAttendance(); // no await — fire and forget
+        !loggedIn && sessionStorage.removeItem("FetchOnFirstPageLoad");
       } else {
         await fetchFreshAttendance();
-        !hasCachedData && sessionStorage.removeItem("FetchOnFirstPageLoad");
+        !loggedIn && sessionStorage.removeItem("FetchOnFirstPageLoad");
       }
     };
 
