@@ -27,6 +27,7 @@ const Login: React.FC<LoginProps> = ({ onRefresh }) => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoginLoading(true);
+    console.log(loginLoading)
     try {
       const res = await fetch('/api/login', {
         method: 'POST',
@@ -42,6 +43,7 @@ const Login: React.FC<LoginProps> = ({ onRefresh }) => {
       if (data.success) {
         setMessage('Login successful!');
         setMessageType('success');
+        console.log('Login successful', loginLoading);
         onRefresh();
         // Removed manual SW postMessage for Serwist
       } else {
@@ -52,7 +54,7 @@ const Login: React.FC<LoginProps> = ({ onRefresh }) => {
       setMessage('An error occurred during login.');
       setMessageType('error');
     } finally {
-
+console.log(loginLoading, 'bue')
     }
   };
 
