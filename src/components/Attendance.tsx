@@ -49,10 +49,10 @@ const Attendance: React.FC = () => {
   const [selectedQuarterIdx, setSelectedQuarterIdx] = useState<number>(() => {
     if (typeof window !== 'undefined') {
       const stored = localStorage.getItem('selectedQuarterIdx');
-      if (stored !== null) return parseInt(stored, 10);
+      return stored !== null ? parseInt(stored, 10) : -1;
     }
-    return -1; // -1 means whole year
-  });
+    return -1;
+  }); // -1 means whole year
   const [quarters, setQuarters] = useState<Quarter[]>([]);
   const [backgroundFetching, setBackgroundFetching] = useState(false);
   const [refreshClicked, setRefreshClicked] = useState(false);
@@ -66,6 +66,13 @@ const Attendance: React.FC = () => {
     return 'newest';
   });
   const isOnline = useIsOnline();
+
+  // Store selectedQuarterIdx in localStorage whenever it changes
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('selectedQuarterIdx', selectedQuarterIdx.toString());
+    }
+  }, [selectedQuarterIdx]);
 
   // Load quarters from localStorage on mount and when quarters change
   useEffect(() => {
@@ -83,16 +90,7 @@ const Attendance: React.FC = () => {
     const handler = () => loadQuarters();
     window.addEventListener('quarters-changed', handler);
     return () => window.removeEventListener('quarters-changed', handler);
-  }, []);
-
-  // Store selectedQuarterIdx in localStorage whenever it changes
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('selectedQuarterIdx', selectedQuarterIdx.toString());
-    }
-  }, [selectedQuarterIdx]);
-
-  // Helper to sort attendance based on date in DD/MM/YYYY format
+  }, []);  // Helper to sort attendance based on date in DD/MM/YYYY format
   const sortAttendance = (data: AttendanceRow[]) => {
     if (!data || data.length === 0) return [];
 
@@ -150,7 +148,7 @@ const Attendance: React.FC = () => {
   };
 
   const getCachedAttendance = async () => {
-    const cache = await getMatchingCache('dataCache');
+    const cache = await getMatchingCache('api-data');
     if (cache) {
       const cachedResponse = await cache.match(FetchURL);
       if (cachedResponse) {
@@ -195,30 +193,30 @@ const Attendance: React.FC = () => {
             sessionStorage.setItem("FetchOnFirstPageLoad", "false");
             setDataUpdated(true);
 
-            if ('caches' in window) {
-              const cache = await caches.open('dataCache');
-              await cache.put(
-                FetchURL,
-                new Response(JSON.stringify(data), {
-                  headers: { 'Content-Type': 'application/json' },
-                })
-              );
-            }
+            // if ('caches' in window) {
+            //   const cache = await caches.open('api-data');
+            //   await cache.put(
+            //     FetchURL,
+            //     new Response(JSON.stringify(data), {
+            //       headers: { 'Content-Type': 'application/json' },
+            //     })
+            //   );
+            // }
           }
-           else if (data.attendance && !data.loggedIn) {
-            if ('caches' in window) {
-              const cache = await caches.open('dataCache');
-              await cache.put(
-                FetchURL,
-                new Response(JSON.stringify(data), {
-                  headers: { 'Content-Type': 'application/json' },
-                })
-              );
-            }
+          //  else if (data.attendance && !data.loggedIn) {
+          //   if ('caches' in window) {
+          //     const cache = await caches.open('api-data');
+          //     await cache.put(
+          //       FetchURL,
+          //       new Response(JSON.stringify(data), {
+          //         headers: { 'Content-Type': 'application/json' },
+          //       })
+          //     );
+          //   }
 
-            setLoggedIn(data.loggedIn);
-            setAttendance(sortAttendance(data.attendance));
-          }
+          //   setLoggedIn(data.loggedIn);
+          //   setAttendance(sortAttendance(data.attendance));
+          // }
           else {
             setLoggedIn(false);
             setAttendance([]);
