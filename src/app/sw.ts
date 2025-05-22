@@ -21,7 +21,7 @@ const serwist = new Serwist({
   navigationPreload: true,
   runtimeCaching: [
     ...defaultCache.filter(
-      (entry) => !entry.matcher?.toString().includes("/api/")
+      (entry) => !entry.matcher?.toString().includes("/api/data")
     )
   ]
 });
