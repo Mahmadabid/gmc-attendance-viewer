@@ -170,7 +170,7 @@ const Attendance: React.FC = () => {
         // Make sure we properly sort the cached attendance data by date
         setAttendance(sortAttendance(cachedData.attendance));
         setLoggedIn(cachedData.loggedIn ?? true);
-        hasCachedData = cachedData.attendance.length > 0 && true;
+        hasCachedData = cachedData.loggedIn && true;
       }
     };
 
