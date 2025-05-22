@@ -1,6 +1,6 @@
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
-src/app/api/dummy
+# src/app/api/dummy
 
 public/sw*
 public/swe-worker*
