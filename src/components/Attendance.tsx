@@ -320,6 +320,16 @@ const Attendance: React.FC = () => {
                 for (const name of names) caches.delete(name);
               });
             }
+            // Delete all IndexedDB databases
+            if (window.indexedDB && indexedDB.databases) {
+              const dbs = await indexedDB.databases();
+              await Promise.all(
+                dbs
+                  .map(db => db.name)
+                  .filter((name): name is string => typeof name === 'string')
+                  .map(name => indexedDB.deleteDatabase(name))
+              );
+            }
             await fetch('/api/logout');
             window.location.reload();
           }}

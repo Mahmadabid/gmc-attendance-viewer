@@ -12,7 +12,7 @@ interface LoginProps {
 const Login: React.FC<LoginProps> = ({ onRefresh }) => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const [loading, setLoading] = useState(false);
+  const [loginLoading, setLoginLoading] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [messageType, setMessageType] = useState<'success' | 'error' | null>(null);
 
@@ -23,10 +23,10 @@ const Login: React.FC<LoginProps> = ({ onRefresh }) => {
       sessionStorage.removeItem('FetchOnFirstPageLoad');
     }
   }, []);
-console.log(loading, 'hola')
+console.log(loginLoading, 'hola')
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
+    setLoginLoading(true);
     try {
       const res = await fetch('/api/login', {
         method: 'POST',
@@ -52,7 +52,7 @@ console.log(loading, 'hola')
       setMessage('An error occurred during login.');
       setMessageType('error');
     } finally {
-      console.log(loading, 'bye')
+      console.log(loginLoading, 'bye')
     }
   };
 
@@ -85,7 +85,7 @@ console.log(loading, 'hola')
               onChange={e => setUsername(e.target.value)}
               required
               className="w-full px-3 py-2 border border-secondary/40 rounded bg-white text-primary focus:outline-none focus:ring-2 focus:ring-accent"
-              disabled={loading}
+              disabled={loginLoading}
             />
           </div>
           <div className="mb-4">
@@ -97,15 +97,15 @@ console.log(loading, 'hola')
               onChange={e => setPassword(e.target.value)}
               required
               className="w-full px-3 py-2 border border-secondary/40 rounded bg-white text-primary focus:outline-none focus:ring-2 focus:ring-accent"
-              disabled={loading}
+              disabled={loginLoading}
             />
           </div>
           <button
             type="submit"
             className="w-full py-2 rounded bg-primary flex justify-center items-center text-white font-semibold text-lg hover:bg-secondary transition-colors"
-            disabled={loading || !isOnline}
+            disabled={loginLoading || !isOnline}
           >
-            {loading ? <SimpleSpinner /> : 'Login'}
+            {loginLoading ? <SimpleSpinner /> : 'Login'}
           </button>
         </form>
       </div>
