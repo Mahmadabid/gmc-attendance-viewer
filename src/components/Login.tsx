@@ -51,6 +51,8 @@ const Login: React.FC<LoginProps> = ({ onRefresh }) => {
     } catch (err) {
       setMessage('An error occurred during login.');
       setMessageType('error');
+    } finally {
+      console.log(loading, 'bye')
     }
   };
 
