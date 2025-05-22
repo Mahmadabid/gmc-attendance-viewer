@@ -87,6 +87,7 @@ export async function GET(req: NextRequest) {
         const dummyRes = await fetch('https://gmc-attendance-testing.vercel.app/api/dummy');
         const dummyData = await dummyRes.json();
         const dummyRows = dummyData?.attendance || [];
+        console.log('Dummy rows:', dummyRows);
         if (dummyRows && dummyRows.length > 0) {
             // Map snake_case to camelCase for AttendanceRow
             const mapped = dummyRows.map((row: { subject: any; lecturetype: any; teacher: any; lecturetime: any; date: any; status: any; }) => ({

@@ -21,14 +21,10 @@ const serwist = new Serwist({
   clientsClaim: true,
   navigationPreload: true,
   runtimeCaching: [
-    {
-      matcher: ({ url }) => url.pathname.startsWith(FetchURL),
-      handler: new NetworkFirst({
-        cacheName: 'api-data'
-      }),
-    },
-    ...defaultCache,
-  ],
+    ...defaultCache.filter(
+      (entry) => !entry.matcher?.toString().includes("/api/")
+    )
+  ]
 });
 
 serwist.addEventListeners();
