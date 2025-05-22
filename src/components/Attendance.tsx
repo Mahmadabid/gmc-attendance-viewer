@@ -150,7 +150,7 @@ const Attendance: React.FC = () => {
   };
 
   const getCachedAttendance = async () => {
-    const cache = await getMatchingCache('apis');
+    const cache = await getMatchingCache('dataCache');
     if (cache) {
       const cachedResponse = await cache.match(FetchURL);
       if (cachedResponse) {
@@ -196,7 +196,7 @@ const Attendance: React.FC = () => {
             setDataUpdated(true);
 
             if ('caches' in window) {
-              const cache = await caches.open('apis');
+              const cache = await caches.open('dataCache');
               await cache.put(
                 FetchURL,
                 new Response(JSON.stringify(data), {
@@ -207,7 +207,7 @@ const Attendance: React.FC = () => {
           }
            else if (data.attendance && !data.loggedIn) {
             if ('caches' in window) {
-              const cache = await caches.open('apis');
+              const cache = await caches.open('dataCache');
               await cache.put(
                 FetchURL,
                 new Response(JSON.stringify(data), {
