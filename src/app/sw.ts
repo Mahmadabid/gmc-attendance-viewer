@@ -1,6 +1,6 @@
 import { defaultCache } from "@serwist/next/worker";
 import type { PrecacheEntry, SerwistGlobalConfig } from "serwist";
-import { NetworkOnly, Serwist } from "serwist";
+import { Serwist } from "serwist";
 
 // This declares the value of `injectionPoint` to TypeScript.
 // `injectionPoint` is the string that will be replaced by the
@@ -17,14 +17,19 @@ declare const self: ServiceWorkerGlobalScope;
 const serwist = new Serwist({
   precacheEntries: self.__SW_MANIFEST,
   skipWaiting: true,
-  clientsClaim: true,
-  navigationPreload: true,
+  clientsClaim: true,  
+  navigationPreload: true,  
   runtimeCaching: [
-    {
-      matcher: ({ url }) => url.pathname.startsWith("/api/data"),
-      handler: new NetworkOnly(),
-    },
-    ...defaultCache,
+    ...defaultCache.filter((entry) => {
+      // Only exclude entries that specifically match API routes
+      if (!entry.matcher) return true;
+      
+      const matcherString = entry.matcher.toString();
+      // More precise filtering - only exclude actual API route patterns
+      return !matcherString.includes('pathname.startsWith("/api")') && 
+             !matcherString.includes('url.pathname === "/api"') &&
+             !matcherString.includes('/api/');
+    }),
   ],
 });
 
