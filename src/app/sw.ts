@@ -20,16 +20,18 @@ const serwist = new Serwist({
   clientsClaim: true,  
   navigationPreload: true,  
   runtimeCaching: [
-    ...defaultCache.filter((entry) => {
-      // Only exclude entries that specifically match API routes
-      if (!entry.matcher) return true;
-      
-      const matcherString = entry.matcher.toString();
-      // More precise filtering - only exclude actual API route patterns
-      return !matcherString.includes('pathname.startsWith("/api")') && 
-             !matcherString.includes('url.pathname === "/api"') &&
-             !matcherString.includes('/api/');
-    }),
+    // Skip service worker for API routes entirely - let them pass through
+    {
+      matcher: ({ url }) => url.pathname.startsWith("/api"),
+      handler: {
+        handle: async ({ event }: { event: FetchEvent }) => {
+          // Return undefined to let the request pass through to the network
+          return undefined;
+        }
+      } as any,
+    },
+    // Keep all default cache entries for offline functionality
+    ...defaultCache,
   ],
 });
 
