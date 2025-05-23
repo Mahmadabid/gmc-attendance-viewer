@@ -26,7 +26,7 @@ const serwist = new Serwist({
       handler: {
         handle: async ({ event }: { event: FetchEvent }) => {
           // Return undefined to let the request pass through to the network
-          return undefined;
+          return;
         }
       } as any,
     },
