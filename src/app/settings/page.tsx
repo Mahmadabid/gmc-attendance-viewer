@@ -3,6 +3,7 @@
 import { useIsOnline } from "@/components/lib/context/IsOnlineContext";
 import SettingsForm from "@/components/settings/SettingsForm";
 import { ArrowUturnLeftIcon, ExclamationTriangleIcon } from "@heroicons/react/16/solid";
+import Link from "next/link";
 
 export default function SettingsPage() {
 
@@ -18,12 +19,12 @@ export default function SettingsPage() {
       )}
       {/* Go back button */}
       <div className="flex items-center mb-4">
-        <button
+        <Link
+          href="/"
           className="px-4 flex flex-row justify-center items-center gap-1 py-2 rounded bg-accent text-white font-semibold transition-colors hover:bg-secondary/80"
-          onClick={() => window.history.back()}
         >
-          <ArrowUturnLeftIcon className="w-5 h-5" /> Back
-        </button>
+          <ArrowUturnLeftIcon className="w-5 h-5" /> Home
+        </Link>
       </div>
       <h1 className="text-2xl text-secondary font-bold mb-4">Settings</h1>
       <>

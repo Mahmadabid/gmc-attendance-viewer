@@ -6,9 +6,11 @@ import { Cog6ToothIcon, PowerIcon } from "@heroicons/react/24/outline";
 import { useIsOnline } from "./lib/context/IsOnlineContext";
 import { useState } from "react";
 import Spinner from "./Spinner";
+import { PhoneIcon } from "@heroicons/react/16/solid";
 
 const navItems = [
     { name: "Settings", href: "/settings", icon: Cog6ToothIcon },
+    { name: "Contact Us", href: "/contact", icon: PhoneIcon }, // Use PowerIcon as placeholder, replace with a mail icon if desired
 ];
 
 export default function Header() {
@@ -41,7 +43,7 @@ export default function Header() {
                                     aria-current={pathname === href ? "page" : undefined}
                                 >
                                     <Icon className="w-5 h-5" aria-hidden="true" />
-                                    <span>{name}</span>
+                                    <span className={`${name !== 'Settings' ? 'max-[500px]:hidden': 'max-[400px]:hidden'}`}>{name}</span>
                                 </Link>
                             </li>
                         ))}
