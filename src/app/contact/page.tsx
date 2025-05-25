@@ -1,9 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { ArrowUturnLeftIcon } from "@heroicons/react/16/solid";
+import { ArrowUturnLeftIcon, ExclamationTriangleIcon } from "@heroicons/react/16/solid";
 import { SimpleSpinner } from "@/components/Spinner";
 import Link from "next/link";
+import { useIsOnline } from "@/components/lib/context/IsOnlineContext";
 
 const FORM_URL = process.env.NEXT_PUBLIC_FORM_URL || '';
 
@@ -41,6 +42,8 @@ export default function ContactPage() {
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState("");
 
+  const isOnline = useIsOnline();
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setForm(f => ({ ...f, [name]: value }));
@@ -56,7 +59,7 @@ export default function ContactPage() {
       for (const field of FIELDS) {
         formData.append(field.entry, form[field.entry as FieldKey]);
       }
-      const res = await fetch(FORM_URL, {
+      await fetch(FORM_URL, {
         method: "POST",
         mode: "no-cors",
         body: formData,
@@ -85,6 +88,12 @@ export default function ContactPage() {
           <ArrowUturnLeftIcon className="w-5 h-5" /> Home
         </Link>
       </div>
+      {!isOnline && (
+        <div className="flex justify-center items-center mx-2 text-red-700 bg-red-100 border border-red-300 rounded p-2 mb-6 font-semibold">
+          <ExclamationTriangleIcon className="min-w-6 w-6 h-6 min-h-6 text-red-700 mr-2" />
+          You are Offline. Please check your internet connection.
+        </div>
+      )}
       <h1 className="text-2xl text-secondary font-bold mb-4">Contact Us</h1>
       <form
         className="flex flex-col gap-6 w-full max-w-xl bg-white p-6 rounded-lg border border-secondary/30 shadow-md"
@@ -145,7 +154,7 @@ export default function ContactPage() {
         <button
           type="submit"
           className="px-5 py-2 mt-3 rounded bg-primary text-white font-semibold hover:bg-secondary transition-colors shadow-sm flex items-center justify-center"
-          disabled={loading}
+          disabled={!isOnline || loading}
         >
           {loading ? <SimpleSpinner /> : "Send Message"}
         </button>
