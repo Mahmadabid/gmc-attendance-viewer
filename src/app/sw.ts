@@ -1,6 +1,6 @@
 import { defaultCache } from "@serwist/next/worker";
 import type { PrecacheEntry, SerwistGlobalConfig } from "serwist";
-import { NetworkOnly, Serwist } from "serwist";
+import { Serwist } from "serwist";
 
 // This declares the value of `injectionPoint` to TypeScript.
 // `injectionPoint` is the string that will be replaced by the
@@ -19,13 +19,7 @@ const serwist = new Serwist({
   skipWaiting: true,
   clientsClaim: true,
   navigationPreload: true,
-  runtimeCaching: [
-    {
-      matcher: ({ url }) => url.pathname.startsWith("/api"),
-      handler: new NetworkOnly(),
-    },
-    ...defaultCache,
-  ],
+  runtimeCaching: defaultCache,
 });
 
 serwist.addEventListeners();
