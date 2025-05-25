@@ -6,6 +6,7 @@ import SubjectFilterButtons from './attendance/SubjectFilterButtons';
 import AttendanceSummaryTable from './attendance/AttendanceSummaryTable';
 import AttendanceTable from './attendance/AttendanceTable';
 import QuarterFilterButtons from './attendance/QuarterFilterButtons';
+import SafeBunkCalculator from './attendance/SafeBunkCalculator';
 import Login from './Login';
 import { isDateInRange } from './lib/dateUtils';
 import { ArrowPathIcon, WifiIcon } from '@heroicons/react/24/outline';
@@ -186,7 +187,7 @@ const Attendance: React.FC = () => {
 
           if (!res.ok) throw new Error('Failed to fetch attendance');
           const data = await res.json();
-
+          console.log(data)
           if (data.attendance && data.loggedIn) {
             setLoggedIn(data.loggedIn);
             // Make sure we properly sort the attendance data by date
@@ -349,7 +350,7 @@ const Attendance: React.FC = () => {
   const absent = attendanceInQuarter.filter(row => row.status && row.status.toLowerCase() === 'absent').length;
   const leave = attendanceInQuarter.filter(row => row.status && row.status.toLowerCase() === 'leave').length;
   const present = attendanceInQuarter.filter(row => row.status && row.status.toLowerCase() === 'present').length;
-  const percentage = totalLectures > 0 ? (present / (totalLectures - leave) * 100).toFixed(2) : '0.00';
+  const percentage = totalLectures === leave ? '100' : totalLectures > 0 ? (present / (totalLectures - leave) * 100).toFixed(2) : '0.00';
 
   // Group by subject
   const subjects = Array.from(new Set(attendanceInQuarter.map(row => row.subject)));
@@ -360,7 +361,7 @@ const Attendance: React.FC = () => {
     const total = subjectRows.length;
     const present = subjectRows.filter(row => row.status && row.status.toLowerCase() === 'present').length;
     const leave = subjectRows.filter(row => row.status && row.status.toLowerCase() === 'leave').length;
-    subjectPercentages[subject] = total > 0 ? (present / (total - leave) * 100).toFixed(2) : '0.00';
+    subjectPercentages[subject] = total === leave ? '100' : total > 0 ? (present / (total - leave) * 100).toFixed(2) : '0.00';
   });
 
   // Calculate summary stats for selected subject
@@ -371,7 +372,7 @@ const Attendance: React.FC = () => {
     const present = subjectRows.filter(row => row.status && row.status.toLowerCase() === 'present').length;
     const absent = subjectRows.filter(row => row.status && row.status.toLowerCase() === 'absent').length;
     const leave = subjectRows.filter(row => row.status && row.status.toLowerCase() === 'leave').length;
-    const percentage = total > 0 ? (present / (total - leave) * 100).toFixed(2) : '0.00';
+    const percentage = total === leave ? '100' : total > 0 ? (present / (total - leave) * 100).toFixed(2) : '0.00';
     selectedStats = { subject: selectedSubject, total, present, absent, leave, percentage };
   }
 
@@ -486,19 +487,31 @@ const Attendance: React.FC = () => {
 
           <div className='mt-10'>
             <h2 className="text-3xl max-[450px]:text-2xl pt-5 font-bold mb-2 text-secondary text-center border-t border-secondary/20 py-2">{selectedStats?.subject ? selectedStats.subject : 'Total'} Attendance</h2>
-          </div>
-
-          {/* Vertical summary table for selected subject only */}
+          </div>          {/* Vertical summary table for selected subject only */}
           {
             selectedSubject && selectedStats && (
-              <AttendanceSummaryTable stats={selectedStats} />
+              <>
+                <AttendanceSummaryTable stats={selectedStats} />
+                <SafeBunkCalculator
+                  totalClasses={selectedStats.total}
+                  presentClasses={selectedStats.present}
+                  leaveClasses={selectedStats.leave}
+                />
+              </>
             )
           }
 
           {/* Vertical summary table for all subjects */}
           {
             selectedSubject === null && (
-              <AttendanceSummaryTable stats={{ total: totalLectures, present, absent, leave, percentage }} />
+              <>
+                <AttendanceSummaryTable stats={{ total: totalLectures, present, absent, leave, percentage }} />
+                <SafeBunkCalculator
+                  totalClasses={totalLectures}
+                  presentClasses={present}
+                  leaveClasses={leave}
+                />
+              </>
             )
           }
 

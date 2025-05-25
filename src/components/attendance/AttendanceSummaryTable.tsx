@@ -20,6 +20,10 @@ const AttendanceSummaryTable: React.FC<AttendanceSummaryTableProps> = ({ stats }
             <td className="p-2 text-sm font-bold text-primary border-r border-secondary/20">Total</td>
             <td className="p-2 text-sm text-primary">{stats.total}</td>
           </tr>
+          {stats.leave > 0 && <tr>
+            <td className="p-2 text-sm font-bold text-primary border-r border-secondary/20">Total after Leave</td>
+            <td className="p-2 text-sm text-primary">{stats.total - stats.leave}</td>
+          </tr>}
           <tr>
             <td className="p-2 text-sm font-bold text-primary border-r border-secondary/20">Present</td>
             <td className="p-2 text-sm text-primary">{stats.present}</td>

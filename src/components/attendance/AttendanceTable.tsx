@@ -41,8 +41,8 @@ const AttendanceTable: React.FC<AttendanceTableProps> = ({ attendance, keyMap })
             const rowClass = isAbsent
               ? 'bg-red-100 hover:bg-red-200 transition-colors'
               : isLeave
-                ? 'bg-green-100 hover:bg-green-200 transition-colors'
-                : 'bg-white hover:bg-accent/10 transition-colors';
+                ? 'bg-emerald-50 hover:bg-emerald-100 transition-colors'
+                : 'bg-white hover:bg-sky-50 transition-colors';
             return (
               <tr key={idx + page * pageSize} className={rowClass}>
                 <td className="p-1 text-sm text-primary border-b border-secondary/10 border-r font-bold text-center">{idx + 1 + page * pageSize}</td>
