@@ -89,7 +89,7 @@ export default function ContactPage() {
         </Link>
       </div>
       {!isOnline && (
-        <div className="flex justify-center items-center mx-2 text-red-700 bg-red-100 border border-red-300 rounded p-2 mb-6 font-semibold">
+        <div className="flex justify-center items-center mx-2 text-red-700 bg-red-100 border border-red-300 rounded p-2 w-full mb-6 font-semibold">
           <ExclamationTriangleIcon className="min-w-6 w-6 h-6 min-h-6 text-red-700 mr-2" />
           You are Offline. Please check your internet connection.
         </div>
@@ -153,7 +153,7 @@ export default function ContactPage() {
         )}
         <button
           type="submit"
-          className="px-5 py-2 mt-3 rounded bg-primary text-white font-semibold hover:bg-secondary transition-colors shadow-sm flex items-center justify-center"
+          className="px-5 py-2 mt-3 disabled:bg-gray-300 rounded bg-primary text-white font-semibold hover:bg-secondary transition-colors shadow-sm flex items-center justify-center"
           disabled={!isOnline || loading}
         >
           {loading ? <SimpleSpinner /> : "Send Message"}

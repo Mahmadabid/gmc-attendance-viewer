@@ -12,7 +12,7 @@ export default function SettingsPage() {
   return (
     <div className="flex flex-col items-center px-2 mt-5 min-h-[30vh]">
       {!isOnline && (
-        <div className="flex justify-center items-center mx-2 text-green-700 bg-green-100 border border-green-300 rounded p-2 mb-6 font-semibold">
+        <div className="flex justify-center items-center w-full mx-2 text-green-700 bg-green-100 border border-green-300 rounded p-2 mb-6 font-semibold">
           <ExclamationTriangleIcon className="min-w-6 w-6 h-6 min-h-6 text-green-700 mr-2" />
           You're offline. Settings will still work in Offline Mode.
         </div>

@@ -59,7 +59,7 @@ const Login: React.FC<LoginProps> = ({ onRefresh }) => {
   return (
     <div className={`${isOnline ? 'mt-16' : 'mt-6'}`}>
       {!isOnline && (
-        <div className="flex justify-center items-center mx-2 text-red-700 bg-red-100 border border-red-300 rounded p-2 mb-6 font-semibold">
+        <div className="flex justify-center w-full items-center mx-2 text-red-700 bg-red-100 border border-red-300 rounded p-2 mb-6 font-semibold">
           <ExclamationTriangleIcon className="min-w-6 w-6 h-6 min-h-6 text-red-700 mr-2" />
           You are Offline. Please check your internet connection.
         </div>
