@@ -21,7 +21,7 @@ const serwist = new Serwist({
   navigationPreload: true,
   runtimeCaching: [
     {
-      matcher: ({ url }) => url.pathname.startsWith("/api/data"),
+      matcher: ({ url }) => url.pathname.startsWith("/api"),
       handler: new NetworkOnly(),
     },
     ...defaultCache,
