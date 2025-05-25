@@ -310,7 +310,7 @@ const Attendance: React.FC = () => {
         >
           Retry
         </button>
-        <p className='font-semibold text-secondary mt-4'>Click this button if retry doesnt work. This will clear all data and log you out. It wont affect your quarters.</p>
+        <p className='font-semibold text-secondary mt-4 max-2'>Click this button if retry doesnt work. This will clear all data and log you out. It wont affect your quarters.</p>
         {/* Add other button to clear everything */}
         <button
           className="px-2 py-1 mt-2 bg-red-500 text-white rounded hover:bg-red-700 transition-colors shadow-md"
