@@ -169,7 +169,7 @@ const SafeBunkCalculator: React.FC<SafeBunkCalculatorProps> = ({
                 </div>
                   {/* Toggle details button */}
                 <button
-                    className="absolute left-1/2 transform -translate-x-1/2 -translate-y-1/2 bottom-[-45px] bg-secondary hover:bg-secondary/80 transition-colors rounded-full p-1 shadow-md border border-secondary/50"
+                    className={`absolute left-1/2 transform -translate-x-1/2 -translate-y-1/2 bottom-[-45px] bg-secondary hover:bg-secondary/80 transition-colors !rounded-full shadow-md border border-secondary/50 w-8 h-8 ${!showAllDetails && 'pt-[2px]'} items-center justify-center flex`}
                     onClick={toggleShowDetails}
                     aria-label={showAllDetails ? "Hide details" : "Show details"}
                 >
