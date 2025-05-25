@@ -17,11 +17,18 @@ const SafeBunkCalculator: React.FC<SafeBunkCalculatorProps> = ({
 }) => {
     const [safeBunks, setSafeBunks] = useState(0);
     const [currentPercentage, setCurrentPercentage] = useState("0.00");
-    const [minPercentage, setMinPercentage] = useState(defaultMinPercentage);
+    const [minPercentage, setMinPercentage] = useState(() => {
+        const saved = localStorage.getItem('minAttendance');
+        return saved ? parseInt(saved) : defaultMinPercentage;
+    });
     const [isExpanded, setIsExpanded] = useState(false);
     const [showAllDetails, setShowAllDetails] = useState(false);
     const [projectedPercentage, setProjectedPercentage] = useState("0.00");
     const [effectiveFutureTotal, setEffectiveFutureTotal] = useState<number>(0);
+
+    useEffect(() => {
+        localStorage.setItem('minAttendance', minPercentage.toString());
+    }, [minPercentage]);
 
     useEffect(() => {
         const effectiveTotal = totalClasses - leaveClasses;
@@ -97,7 +104,7 @@ const SafeBunkCalculator: React.FC<SafeBunkCalculatorProps> = ({
                     <div className="flex items-center gap-2">
                         <input
                             type="range"
-                            min="75"
+                            min="50"
                             max="95"
                             step="1"
                             value={minPercentage}

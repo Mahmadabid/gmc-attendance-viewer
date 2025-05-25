@@ -17,13 +17,11 @@ const Login: React.FC<LoginProps> = ({ onRefresh }) => {
   const [messageType, setMessageType] = useState<'success' | 'error' | null>(null);
 
   const isOnline = useIsOnline();
-  
+
   useEffect(() => {
     if (sessionStorage.getItem('FetchOnFirstPageLoad') === 'false') {
       sessionStorage.removeItem('FetchOnFirstPageLoad');
     }
-
-    onRefresh();
   }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
