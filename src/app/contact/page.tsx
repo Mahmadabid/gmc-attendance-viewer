@@ -76,7 +76,7 @@ export default function ContactPage() {
   };
 
   return (
-    <div className="flex flex-col items-center px-2 mt-5 min-h-[30vh]">
+    <div className="flex flex-col items-center max-[400px]:px-1 px-2 mt-5 min-h-[30vh]">
       <div className="flex items-center mb-8">
         <Link
           href="/"

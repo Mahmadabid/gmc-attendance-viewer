@@ -167,6 +167,7 @@ const Attendance: React.FC = () => {
 
     const loadFromCacheIfAvailable = async () => {
       const cachedData = await getCachedAttendance();
+      console.log('Cached data:', cachedData);
       if (cachedData?.attendance) {
         // Make sure we properly sort the cached attendance data by date
         setAttendance(sortAttendance(cachedData.attendance));
@@ -176,6 +177,7 @@ const Attendance: React.FC = () => {
     };
 
     const fetchFreshAttendance = async () => {
+      console.log('hi')
 
       if ((refreshClicked || FetchOnFirstPageLoad === null) && actuallyOnline) {
         try {
@@ -187,6 +189,8 @@ const Attendance: React.FC = () => {
 
           if (!res.ok) throw new Error('Failed to fetch attendance');
           const data = await res.json();
+
+          console.log('data:',data)
 
           if (data.attendance && data.loggedIn) {
             setLoggedIn(data.loggedIn);
