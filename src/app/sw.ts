@@ -20,27 +20,11 @@ const serwist = new Serwist({
   clientsClaim: true,
   navigationPreload: true,
   runtimeCaching: [
-    // Filter out any default cache rules that might match API routes
-    ...defaultCache.filter(cacheRule => {
-      // If the cache rule has a matcher function, test it against API routes
-      if (typeof cacheRule.matcher === 'function') {
-        try {
-          // Test if this cache rule would match an API route
-          const testApiUrl = new URL('/api/data', self.location.origin);
-          const shouldMatch = cacheRule.matcher({ 
-            url: testApiUrl,
-            request: new Request(testApiUrl)
-          } as any);
-          // If it matches API routes, exclude it
-          return !shouldMatch;
-        } catch {
-          // If testing fails, include the rule (safer)
-          return true;
-        }
-      }
-      // If no matcher function, include the rule
-      return true;
-    })
+    {
+      matcher: ({ url }) => url.pathname.startsWith("/api"),
+      handler: new NetworkOnly(),
+    },
+    ...defaultCache,
   ],
 });
 
