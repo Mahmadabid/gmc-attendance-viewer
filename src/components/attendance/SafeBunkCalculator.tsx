@@ -96,7 +96,7 @@ const SafeBunkCalculator: React.FC<SafeBunkCalculatorProps> = ({
             </div>            
             {showAllDetails && (
                 <p className="text-sm mb-3 text-gray-600">
-                    {parseFloat(currentPercentage) < minPercentage ? `Estimate how many classes you you have to take to maintain at least ${minPercentage}% attendance.`: `Estimate how many classes you can safely miss while maintaining at least ${minPercentage}% attendance.`}
+                    {parseFloat(currentPercentage) < minPercentage ? `Estimate how many classes you you have to take to maintain at least ${minPercentage}% attendance.`: `Estimate how many classes you can safely bunk while maintaining at least ${minPercentage}% attendance.`}
                     <br />
                     <span className="italic text-xs text-gray-500">
                         Leave classes are subtracted from total for calculations.
@@ -156,7 +156,7 @@ const SafeBunkCalculator: React.FC<SafeBunkCalculatorProps> = ({
                     {parseFloat(currentPercentage) >= minPercentage ? (
                         <>
                             <div className="text-center">
-                                <span className="text-xs min-[360px]:text-sm font-medium text-gray-600 block">Safe Classes to Miss:</span>
+                                <span className="text-xs min-[360px]:text-sm font-medium text-gray-600 block">Safe Classes to Bunk:</span>
                                 <span className={`text-xl min-[360px]:text-2xl font-bold ${getBunkStatusColor()}`}>
                                     {safeBunks}
                                 </span>
