@@ -56,7 +56,7 @@ const Attendance: React.FC = () => {
   }); // -1 means whole year
   const [quarters, setQuarters] = useState<Quarter[]>([]);
   const [backgroundFetching, setBackgroundFetching] = useState(false);
-  const [refreshClicked, setRefreshClicked] = useState<boolean>(false);
+  const [refreshClicked, setRefreshClicked] = useState(false);
   const [dataUpdated, setDataUpdated] = useState(false);
   const [cooldownMessage, setCooldownMessage] = useState<string | null>(null);
   const [cooldownSeconds, setCooldownSeconds] = useState<number>(0);
@@ -134,22 +134,27 @@ const Attendance: React.FC = () => {
       }
     });
   };
-  
+
+  const getMatchingCache = async (prefix: string) => {
+    if (!('caches' in window)) return null;
+
+    const cacheNames = await caches.keys();
+    const matchingName = cacheNames.find(name => name.startsWith(prefix));
+
+    if (matchingName) {
+      return await caches.open(matchingName);
+    }
+
+    return null;
+  };
+
   const getCachedAttendance = async () => {
-    if ('caches' in window) {
-      const cacheNames = await caches.keys();
-      // Find any cache that contains the attendance API response
-      for (const cacheName of cacheNames) {
-        const cache = await caches.open(cacheName);
-        const cachedResponse = await cache.match(FetchURL);
-        if (cachedResponse) {
-          try {
-            const data = await cachedResponse.json();
-            return data;
-          } catch {
-            // Ignore parse errors
-          }
-        }
+    const cache = await getMatchingCache('api-data');
+    if (cache) {
+      const cachedResponse = await cache.match(FetchURL);
+      if (cachedResponse) {
+        const data = await cachedResponse.json();
+        return data;
       }
     }
     return null;
@@ -172,6 +177,7 @@ const Attendance: React.FC = () => {
     };
 
     const fetchFreshAttendance = async () => {
+
       if ((refreshClicked || FetchOnFirstPageLoad === null) && actuallyOnline) {
         try {
           setBackgroundFetching(true);
@@ -185,11 +191,11 @@ const Attendance: React.FC = () => {
 
           if (data.attendance && data.loggedIn) {
             setLoggedIn(data.loggedIn);
+            // Make sure we properly sort the attendance data by date
             setAttendance(sortAttendance(data.attendance));
             sessionStorage.setItem("FetchOnFirstPageLoad", "false");
             setDataUpdated(true);
-
-            }
+          }
           else {
             setLoggedIn(false);
             setAttendance([]);

@@ -14,8 +14,7 @@ const SafeBunkCalculator: React.FC<SafeBunkCalculatorProps> = ({
     presentClasses,
     leaveClasses,
     minPercentage: defaultMinPercentage = 85
-}) => {
-    const [safeBunks, setSafeBunks] = useState(0);
+}) => {    const [safeBunks, setSafeBunks] = useState(0);
     const [currentPercentage, setCurrentPercentage] = useState("0.00");
     const [minPercentage, setMinPercentage] = useState(() => {
         const saved = localStorage.getItem('minAttendance');
@@ -25,6 +24,7 @@ const SafeBunkCalculator: React.FC<SafeBunkCalculatorProps> = ({
     const [showAllDetails, setShowAllDetails] = useState(false);
     const [projectedPercentage, setProjectedPercentage] = useState("0.00");
     const [effectiveFutureTotal, setEffectiveFutureTotal] = useState<number>(0);
+    const [requiredLectures, setRequiredLectures] = useState(0);
 
     useEffect(() => {
         localStorage.setItem('minAttendance', minPercentage.toString());
@@ -36,12 +36,18 @@ const SafeBunkCalculator: React.FC<SafeBunkCalculatorProps> = ({
         const currentPercent = effectiveTotal === 0 ? 100 : effectiveTotal > 0
             ? (presentClasses / effectiveTotal * 100)
             : 0;
-        setCurrentPercentage(currentPercent.toFixed(2));
-
-        if (currentPercent < minPercentage) {
+        setCurrentPercentage(currentPercent.toFixed(2));        if (currentPercent < minPercentage) {
             setSafeBunks(0);
             setProjectedPercentage(currentPercent.toFixed(2));
             setEffectiveFutureTotal(effectiveTotal);
+            
+            // Calculate required lectures to reach minimum percentage
+            // Formula: (presentClasses + x) / (effectiveTotal + x) = minPercentage / 100
+            // Solving for x: x = (minPercentage * effectiveTotal - 100 * presentClasses) / (100 - minPercentage)
+            const requiredLecturesCount = Math.ceil(
+                (minPercentage * effectiveTotal - 100 * presentClasses) / (100 - minPercentage)
+            );
+            setRequiredLectures(Math.max(0, requiredLecturesCount));
             return;
         }
 
@@ -52,13 +58,14 @@ const SafeBunkCalculator: React.FC<SafeBunkCalculatorProps> = ({
             const newTotal = effectiveTotal + safeBunksCount;
             const projectedPercent = newTotal > 0 ? (presentClasses / newTotal * 100) : 0;
             setProjectedPercentage(projectedPercent.toFixed(2));
-            setEffectiveFutureTotal(newTotal);
+            setEffectiveFutureTotal(newTotal);        
         } else {
             setProjectedPercentage(currentPercent.toFixed(2));
             setEffectiveFutureTotal(effectiveTotal);
         }
 
         setSafeBunks(safeBunksCount);
+        setRequiredLectures(0); // Reset when attendance is above minimum
     }, [totalClasses, presentClasses, leaveClasses, minPercentage]);
 
     const getBunkStatusColor = () => {
@@ -77,18 +84,19 @@ const SafeBunkCalculator: React.FC<SafeBunkCalculatorProps> = ({
     return (
         <div className="p-2 min-[360px]:p-4 pb-4 bg-white rounded-lg shadow border border-secondary/30 max-w-md mx-auto mb-6">
             <div className="flex max-[315px]:flex-col justify-between items-center mb-2">
-                <h3 className="text-lg min-[360px]:text-xl font-bold text-secondary">Safe Bunk Calculator</h3>
+                <h3 className="text-lg min-[360px]:text-xl font-bold text-secondary">
+                    {parseFloat(currentPercentage) < minPercentage ? "Recovery Calculator" : "Bunk Calculator"}
+                </h3>
                 <button
                     className="text-sm text-blue-600 hover:text-blue-800 underline"
                     onClick={toggleExpand}
                 >
                     {isExpanded ? "Hide Options" : "Show Options"}
                 </button>
-            </div>
-
+            </div>            
             {showAllDetails && (
                 <p className="text-sm mb-3 text-gray-600">
-                    Estimate how many classes you can safely miss while maintaining at least {minPercentage}% attendance.
+                    {parseFloat(currentPercentage) < minPercentage ? `Estimate how many classes you you have to take to maintain at least ${minPercentage}% attendance.`: `Estimate how many classes you can safely miss while maintaining at least ${minPercentage}% attendance.`}
                     <br />
                     <span className="italic text-xs text-gray-500">
                         Leave classes are subtracted from total for calculations.
@@ -144,28 +152,56 @@ const SafeBunkCalculator: React.FC<SafeBunkCalculatorProps> = ({
                         Required: <span className="font-semibold">{minPercentage}%</span> attendance
                     </div>
                 )}
-                <div className="flex flex-col space-y-3 min-[360px]:space-y-4">
-                    <div className={`flex flex-col min-[360px]:flex-row justify-center items-center gap-3 min-[360px]:gap-6 min-[375px]:gap-10 ${!showAllDetails && 'mt-1'}`}>
-                        <div className="text-center">
-                            <span className="text-xs min-[360px]:text-sm font-medium text-gray-600 block">Safe Classes to Miss:</span>
-                            <span className={`text-xl min-[360px]:text-2xl font-bold ${getBunkStatusColor()}`}>
-                                {safeBunks}
-                            </span>
-                        </div>
-                        <div className="text-center">
-                            <span className="text-xs min-[360px]:text-sm font-medium text-gray-600 block">Attendance After Bunks:</span>
-                            <span className={`text-xl min-[360px]:text-2xl font-bold ${parseFloat(projectedPercentage) >= minPercentage ? "text-green-600" : "text-red-600"}`}>
-                                {projectedPercentage}%
-                            </span>
-                        </div>
-                    </div>{safeBunks > 0 && showAllDetails && (
-                        <div className="bg-gray-50 rounded-md py-2 px-3 text-center text-xs text-gray-600 border border-gray-200">
-                            <span>
-                                After using all {safeBunks} safe bunk{safeBunks > 1 ? 's' : ''} {leaveClasses !== 0}: <br />
-                                <strong>{presentClasses}</strong> present / <strong>{effectiveFutureTotal}</strong> total classes {leaveClasses !== 0 && (<>(<strong>{totalClasses + safeBunks}</strong> lectures including leaves)</>)}
-                            </span>
-                        </div>                    
-                    )}
+                <div className="flex flex-col space-y-3 min-[360px]:space-y-4">                <div className={`flex flex-col min-[360px]:flex-row justify-center items-center gap-3 min-[360px]:gap-6 min-[375px]:gap-10 ${!showAllDetails && 'mt-1'}`}>
+                    {parseFloat(currentPercentage) >= minPercentage ? (
+                        <>
+                            <div className="text-center">
+                                <span className="text-xs min-[360px]:text-sm font-medium text-gray-600 block">Safe Classes to Miss:</span>
+                                <span className={`text-xl min-[360px]:text-2xl font-bold ${getBunkStatusColor()}`}>
+                                    {safeBunks}
+                                </span>
+                            </div>
+                            <div className="text-center">
+                                <span className="text-xs min-[360px]:text-sm font-medium text-gray-600 block">Attendance After Bunks:</span>
+                                <span className={`text-xl min-[360px]:text-2xl font-bold ${parseFloat(projectedPercentage) >= minPercentage ? "text-green-600" : "text-red-600"}`}>
+                                    {projectedPercentage}%
+                                </span>
+                            </div>
+                        </>
+                    ) : (
+                        <>
+                            <div className="text-center">
+                                <span className="text-xs min-[360px]:text-sm font-medium text-gray-600 block">Attendance After Lectures:</span>
+                                <span className="text-xl min-[360px]:text-2xl font-bold text-green-600">
+                                    {(((presentClasses + requiredLectures) / ((totalClasses - leaveClasses) + requiredLectures)) * 100).toFixed(2)}%
+                                </span>
+                            </div>
+                            <div className="text-center">
+                                <span className="text-xs min-[360px]:text-sm font-medium text-gray-600 block">Lectures Needed:</span>
+                                <span className="text-xl min-[360px]:text-2xl font-bold text-orange-600">
+                                    {requiredLectures}
+                                </span>
+                            </div>
+                        </>
+                    )}                
+                    </div>
+                {safeBunks > 0 && showAllDetails && parseFloat(currentPercentage) >= minPercentage && (
+                    <div className="bg-gray-50 rounded-md py-2 px-3 text-center text-xs text-gray-600 border border-gray-200">
+                        <span>
+                            After using all {safeBunks} safe bunk{safeBunks > 1 ? 's' : ''}: <br />
+                            <strong>{presentClasses}</strong> present / <strong>{effectiveFutureTotal}</strong> total classes {leaveClasses !== 0 && (<>(<strong>{totalClasses + safeBunks}</strong> lectures including leaves)</>)}
+                        </span>
+                    </div>                    
+                )}
+                {requiredLectures > 0 && showAllDetails && parseFloat(currentPercentage) < minPercentage && (
+                    <div className="bg-red-50 rounded-md py-2 px-3 text-center text-xs text-red-700 border border-red-200">
+                        <span>
+                            To reach {minPercentage}% attendance, attend the next <strong>{requiredLectures}</strong> lecture{requiredLectures > 1 ? 's' : ''} without missing any: <br />
+                            <strong>{presentClasses + requiredLectures}</strong> present / <strong>{(totalClasses - leaveClasses) + requiredLectures}</strong> total classes
+                            {leaveClasses !== 0 && (<> (<strong>{totalClasses + requiredLectures}</strong> lectures including leaves)</>)}
+                        </span>
+                    </div>
+                )}
                 </div>
                   {/* Toggle details button */}
                 <button
