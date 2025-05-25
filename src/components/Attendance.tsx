@@ -187,7 +187,7 @@ const Attendance: React.FC = () => {
 
           if (!res.ok) throw new Error('Failed to fetch attendance');
           const data = await res.json();
-          console.log(data)
+
           if (data.attendance && data.loggedIn) {
             setLoggedIn(data.loggedIn);
             // Make sure we properly sort the attendance data by date
