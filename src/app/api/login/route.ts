@@ -52,7 +52,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const modifiedCookie = updateCookieMaxAgeAndExpires(setCookie, 3000);
+    const modifiedCookie = updateCookieMaxAgeAndExpires(setCookie, 350);
 
     const res = NextResponse.json({ success: true }, { status: 200 });
     res.headers.set('Set-Cookie', modifiedCookie);
