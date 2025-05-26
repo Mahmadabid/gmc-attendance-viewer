@@ -1,14 +1,86 @@
 import { NextRequest, NextResponse } from 'next/server';
 import * as cheerio from 'cheerio';
 import { AttendanceRow } from '@/components/Attendance';
+import { CREDENTIAL_COOKIE_NAME } from '@/components/lib/utils';
+import { decrypt } from '@/components/lib/encryption';
 
 export async function GET(req: NextRequest) {
     try {
-        const sessionCookie = req.cookies.get('ci_session')?.value;
+        let sessionCookie: any = req.cookies.get('ci_session');
+        let encryptedCredentials = req.cookies.get(CREDENTIAL_COOKIE_NAME)?.value;
+
         const userAgent = req.headers.get('user-agent') || '';
 
-        if (!sessionCookie) {
+        let sessionCookieBoolean = false;
+
+        if (!encryptedCredentials) {
             return NextResponse.json({ loggedIn: false, attendance: [] }, { status: 200 });
+        }
+
+        const decrypted = decrypt(decodeURIComponent(encryptedCredentials));
+        const { username, password } = JSON.parse(decrypted);
+
+        if (!sessionCookie) {
+            sessionCookieBoolean = true;
+            // call /api/login to check if the user is logged in
+            const loginRes = await fetch(`${req.nextUrl.origin}/api/login`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'User-Agent': userAgent,
+                },
+                body: JSON.stringify({ username, password }),
+            });
+
+            if (!loginRes.ok) {
+                return NextResponse.json({
+                    loggedIn: false,
+                    error: 'Auto login failed',
+                }, { status: loginRes.status });
+            }
+
+            // Get new session cookie from response
+            const setCookie = loginRes.headers.get('set-cookie');
+            if (!setCookie || !setCookie.includes('ci_session')) {
+                return NextResponse.json({
+                    loggedIn: false,
+                    error: 'Login did not return a valid session cookie',
+                }, { status: 500 });
+            }
+
+            // Parse all cookies from set-cookie header with their complete attributes
+            const parseCookies = (setCookieHeader: string) => {
+                const cookies: { [key: string]: { value: string; attributes: string } } = {};
+
+                // Split by ', ' only if it is followed by a word and '=' (start of a new cookie)
+                // Handles cases like: ci_session=...;..., user-auth=...;...
+                const cookieParts = setCookieHeader.split(/, (?=[^;]+?=)/);
+                const cookiePattern = /(\w+(?:-\w+)*)=([^;]+)((?:;\s*[^;=]+(?:=[^;]*)?)*)/g;
+                for (const part of cookieParts) {
+                    let match;
+                    while ((match = cookiePattern.exec(part)) !== null) {
+                        const [, name, value, attributes] = match;
+                        cookies[name] = {
+                            value: value,
+                            attributes: attributes
+                        };
+                    }
+                }
+                return cookies;
+            };
+
+            const parsedCookies = parseCookies(setCookie);
+
+            // Extract ci_session cookie
+            if (!parsedCookies['ci_session']) {
+                return NextResponse.json({
+                    loggedIn: false,
+                    error: 'ci_session cookie not found in login response',
+                }, { status: 500 });
+            }
+
+            const ciSessionCookie = parsedCookies['ci_session'];
+            sessionCookie = { name: 'ci_session', ...ciSessionCookie };
         }
 
         // If session exists, fetch attendance page
@@ -16,7 +88,7 @@ export async function GET(req: NextRequest) {
             method: 'GET',
             headers: {
                 'Accept': 'text/html',
-                'Cookie': `ci_session=${sessionCookie}`,
+                'Cookie': `ci_session=${sessionCookie.value}`,
                 'User-Agent': userAgent,
             },
         });
@@ -79,11 +151,19 @@ export async function GET(req: NextRequest) {
             if (loginElementsPresent) {
                 return NextResponse.json({ loggedIn: false }, { status: attendanceRes.status });
             }
+
             // If attendance is empty but login elements are not present, user is logged in but has no attendance yet
-            return NextResponse.json({ loggedIn: true, attendance: [] }, { status: 200 });
+            const res = NextResponse.json({ loggedIn: true, attendance: [] }, { status: 200 });
+            sessionCookieBoolean && res.headers.append('Set-Cookie', sessionCookie.name + '=' + sessionCookie.value + '; ' + sessionCookie.attributes);
+
+            return res;
         }
 
-        return NextResponse.json({ loggedIn: true, attendance }, { status: 200 });
+        const res = NextResponse.json({ loggedIn: true, attendance }, { status: 200 });
+        sessionCookieBoolean && res.headers.append('Set-Cookie', sessionCookie.name + '=' + sessionCookie.value + '; ' + sessionCookie.attributes);
+
+        return res;
+        
     } catch (error: any) {
         // Log error for debugging (optional: use a logger)
         console.error('API error in /api/data:', error);

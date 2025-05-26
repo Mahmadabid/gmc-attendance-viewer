@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { updateCookieMaxAgeAndExpires } from '@/components/lib/utils';
+import { CREDENTIAL_COOKIE_NAME } from '@/components/lib/utils';
+import { encrypt } from '@/components/lib/encryption';
 
 export async function POST(req: NextRequest) {
   try {
@@ -42,20 +43,25 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const setCookie = response.headers.get('set-cookie');
-
-    // Check if we received a cookie, which indicates successful authentication
-    if (!setCookie) {
+    const sessionCookie = response.headers.get('set-cookie');
+    if (!sessionCookie) {
       return NextResponse.json(
         { success: false, error: 'Authentication failed - no session cookie received' },
         { status: 401 }
       );
     }
 
-    const modifiedCookie = updateCookieMaxAgeAndExpires(setCookie, 350);
+    // const updatedSessionCookie = updateCookieMaxAgeAndExpires(sessionCookie, 350);
+
+    const encrypted = encrypt(JSON.stringify({ username, password }));
+     // Create secure HTTP-only cookie for credentials
+    const secureCredentialCookie = `${CREDENTIAL_COOKIE_NAME}=${encodeURIComponent(encrypted)}; Path=/; Max-Age=${350 * 24 * 60 * 60}; HttpOnly; SameSite=Strict; Secure`;
 
     const res = NextResponse.json({ success: true }, { status: 200 });
-    res.headers.set('Set-Cookie', modifiedCookie);
+
+    res.headers.append('Set-Cookie', sessionCookie);
+    res.headers.append('Set-Cookie', secureCredentialCookie);
+
     return res;
 
   } catch (error) {

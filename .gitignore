@@ -2,6 +2,8 @@
 
 src/app/api/dummy
 
+src/app/api/test
+
 public/sw*
 public/swe-worker*
 

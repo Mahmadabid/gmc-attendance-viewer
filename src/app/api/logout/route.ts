@@ -11,6 +11,7 @@ export async function GET() {
 
   // Clear cookies by appending separate Set-Cookie headers
   response.headers.append('Set-Cookie', 'ci_session=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT; HttpOnly; SameSite=Lax');
+  response.headers.append('Set-Cookie', 'user-auth=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT; HttpOnly; SameSite=Strict; Secure');
 
   return response;
 }
