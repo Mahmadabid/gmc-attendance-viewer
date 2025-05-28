@@ -5,11 +5,12 @@ import Spinner from './Spinner';
 import SubjectFilterButtons from './attendance/SubjectFilterButtons';
 import AttendanceSummaryTable from './attendance/AttendanceSummaryTable';
 import AttendanceTable from './attendance/AttendanceTable';
+import AttendanceCalendarView from './attendance/AttendanceCalendarView';
 import QuarterFilterButtons from './attendance/QuarterFilterButtons';
 import SafeBunkCalculator from './attendance/SafeBunkCalculator';
 import Login from './Login';
 import { isDateInRange } from './lib/dateUtils';
-import { ArrowPathIcon, WifiIcon } from '@heroicons/react/24/outline';
+import { ArrowPathIcon, WifiIcon, CalendarDaysIcon, TableCellsIcon } from '@heroicons/react/24/outline';
 import { useIsOnline } from './lib/context/IsOnlineContext';
 import { ExclamationTriangleIcon } from '@heroicons/react/24/solid';
 import { FetchURL } from './lib/utils';
@@ -59,13 +60,18 @@ const Attendance: React.FC = () => {
   const [refreshClicked, setRefreshClicked] = useState(false);
   const [dataUpdated, setDataUpdated] = useState(false);
   const [cooldownMessage, setCooldownMessage] = useState<string | null>(null);
-  const [cooldownSeconds, setCooldownSeconds] = useState<number>(0);
-  const [sortOrder, setSortOrder] = useState<'newest' | 'oldest'>(() => {
+  const [cooldownSeconds, setCooldownSeconds] = useState<number>(0);  const [sortOrder, setSortOrder] = useState<'newest' | 'oldest'>(() => {
     if (typeof window !== 'undefined') {
       return (localStorage.getItem('attendanceSortOrder') as 'newest' | 'oldest') || 'newest';
     }
     return 'newest';
+  });  const [viewMode, setViewMode] = useState<'table' | 'calendar'>(() => {
+    if (typeof window !== 'undefined') {
+      return (localStorage.getItem('attendanceViewMode') as 'table' | 'calendar') || 'table';
+    }
+    return 'table';
   });
+  const [clearSearchTrigger, setClearSearchTrigger] = useState(0);
   const isOnline = useIsOnline();
 
   // Store selectedQuarterIdx in localStorage whenever it changes
@@ -74,7 +80,6 @@ const Attendance: React.FC = () => {
       localStorage.setItem('selectedQuarterIdx', selectedQuarterIdx.toString());
     }
   }, [selectedQuarterIdx]);
-
   // Load quarters from localStorage on mount and when quarters change
   useEffect(() => {
     const loadQuarters = () => {
@@ -91,7 +96,17 @@ const Attendance: React.FC = () => {
     const handler = () => loadQuarters();
     window.addEventListener('quarters-changed', handler);
     return () => window.removeEventListener('quarters-changed', handler);
-  }, []);  // Helper to sort attendance based on date in DD/MM/YYYY format
+  }, []);
+
+  // Clear search when subject filter changes
+  useEffect(() => {
+    setClearSearchTrigger(prev => prev + 1);
+  }, [selectedSubject]);
+
+  // Clear search when quarter filter changes
+  useEffect(() => {
+    setClearSearchTrigger(prev => prev + 1);
+  }, [selectedQuarterIdx]);// Helper to sort attendance based on date in DD/MM/YYYY format
   const sortAttendance = (data: AttendanceRow[]) => {
     if (!data || data.length === 0) return [];
 
@@ -471,7 +486,8 @@ const Attendance: React.FC = () => {
 
           <div className='mt-10'>
             <h2 className="text-3xl max-[450px]:text-2xl pt-5 font-bold mb-2 text-secondary text-center border-t border-secondary/20 py-2">{selectedStats?.subject ? selectedStats.subject : 'Total'} Attendance</h2>
-          </div>          {/* Vertical summary table for selected subject only */}
+          </div>
+          {/* Vertical summary table for selected subject only */}
           {
             selectedSubject && selectedStats && (
               <>
@@ -497,26 +513,71 @@ const Attendance: React.FC = () => {
                 />
               </>
             )
-          }
-
-          {/* Sort order selector */}
-          <div className="flex justify-center items-center mb-2">
-            <label className="font-semibold mr-2">Order:</label>
-            <select
-              className="border rounded cursor-pointer px-2 py-1 outline-0 focus:ring-0 text-secondary font-semibold bg-white"
-              value={sortOrder}
-              onChange={e => {
-                const value = e.target.value as 'newest' | 'oldest';
-                setSortOrder(value);
-                localStorage.setItem('attendanceSortOrder', value);
-              }}
-            >
-              <option value="newest">Newest First</option>
-              <option value="oldest">Oldest First</option>
-            </select>
-          </div>
-
-          <AttendanceTable attendance={filteredAttendance} keyMap={keyMap} />
+          }          
+          {/* View switcher and Sort order selector */}
+          <div className="flex flex-col justify-center items-center gap-4 mb-4">
+            <div className="flex items-center gap-2">
+              <label className="font-semibold text-secondary">View:</label>
+              <div className="flex rounded-md border border-secondary/30 overflow-hidden">                <button
+                  className={`px-4 py-2 text-sm font-medium transition-colors flex items-center gap-2 ${
+                    viewMode === 'table' 
+                      ? 'bg-secondary text-white' 
+                      : 'bg-white text-secondary hover:bg-secondary/10'
+                  }`}
+                  onClick={() => {
+                    setViewMode('table');
+                    localStorage.setItem('attendanceViewMode', 'table');
+                  }}
+                >
+                  <TableCellsIcon className="h-4 w-4" />
+                  Table
+                </button>
+                <button
+                  className={`px-4 py-2 text-sm font-medium transition-colors flex items-center gap-2 ${
+                    viewMode === 'calendar' 
+                      ? 'bg-secondary text-white' 
+                      : 'bg-white text-secondary hover:bg-secondary/10'
+                  }`}
+                  onClick={() => {
+                    setViewMode('calendar');
+                    localStorage.setItem('attendanceViewMode', 'calendar');
+                  }}
+                >
+                  <CalendarDaysIcon className="h-4 w-4" />
+                  Calendar
+                </button>
+              </div>
+            </div>
+            
+            {viewMode === 'table' && (
+              <div className="flex items-center gap-2">
+                <label className="font-semibold text-secondary">Order:</label>
+                <select
+                  className="border border-secondary/30 rounded cursor-pointer px-3 py-2 outline-0 focus:ring-0 text-secondary font-medium bg-white"
+                  value={sortOrder}
+                  onChange={e => {
+                    const value = e.target.value as 'newest' | 'oldest';
+                    setSortOrder(value);
+                    localStorage.setItem('attendanceSortOrder', value);
+                  }}
+                >
+                  <option value="newest">Newest First</option>
+                  <option value="oldest">Oldest First</option>
+                </select>
+              </div>
+            )}
+          </div>          {viewMode === 'table' ? (
+            <AttendanceTable 
+              attendance={filteredAttendance} 
+              keyMap={keyMap} 
+              clearSearchTrigger={clearSearchTrigger}
+            />
+          ) : (
+            <AttendanceCalendarView 
+              attendance={filteredAttendance} 
+              selectedSubject={selectedSubject}
+            />
+          )}
         </>
       }
     </div >

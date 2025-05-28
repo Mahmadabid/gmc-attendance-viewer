@@ -6,9 +6,10 @@ import { MagnifyingGlassIcon, XMarkIcon } from '@heroicons/react/24/outline';
 interface AttendanceTableProps {
   attendance: AttendanceRow[];
   keyMap: Record<string, string>;
+  clearSearchTrigger?: number;
 }
 
-const AttendanceTable: React.FC<AttendanceTableProps> = ({ attendance, keyMap }) => {
+const AttendanceTable: React.FC<AttendanceTableProps> = ({ attendance, keyMap, clearSearchTrigger }) => {
   const [page, setPage] = React.useState(0);
   const [pageSize, setPageSize] = React.useState(() => {
     if (typeof window !== 'undefined') {
@@ -65,13 +66,20 @@ const AttendanceTable: React.FC<AttendanceTableProps> = ({ attendance, keyMap })
   React.useEffect(() => {
     setPage(0);
   }, [pageSize, searchAll]);
-
   // Save pageSize to localStorage when it changes
   React.useEffect(() => {
     if (typeof window !== 'undefined') {
       localStorage.setItem('attendanceTablePageSize', pageSize.toString());
     }
   }, [pageSize]);
+
+  // Clear search when filters change
+  React.useEffect(() => {
+    if (clearSearchTrigger !== undefined) {
+      setSearchTerm('');
+      setSearchAll(false);
+    }
+  }, [clearSearchTrigger]);
 
   if (!attendance.length) return null;
   return (
