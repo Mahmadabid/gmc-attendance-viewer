@@ -1,36 +1,42 @@
-'use client';
+import { Metadata } from "next";
+import SettingsPageClient from "./SettingsPageClient";
 
-import { useIsOnline } from "@/components/lib/context/IsOnlineContext";
-import SettingsForm from "@/components/settings/SettingsForm";
-import { ArrowUturnLeftIcon, ExclamationTriangleIcon } from "@heroicons/react/16/solid";
-import Link from "next/link";
+export const metadata: Metadata = {
+  title: "Settings | GMC Attendance Viewer",
+  description: "Configure your Gujranwala Medical College (GMC) Attendance Viewer settings. Define the start and end dates for each quarter.",
+  openGraph: {
+    title: "Settings | GMC Attendance Viewer",
+    description: "Configure your Gujranwala Medical College (GMC) Attendance Viewer settings. Define the start and end dates for each quarter.",
+    url: "https://gmc-attendance-viewer.vercel.com/settings",
+    siteName: "GMC Attendance Viewer",
+    images: [
+      {
+        url: "/logo.png",
+        width: 500,
+        height: 500,
+        alt: "GMC Attendance Viewer Logo",
+      },
+    ],
+    locale: "en_US",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Settings | GMC Attendance Viewer",
+    description: "Configure your Gujranwala Medical College (GMC) Attendance Viewer settings. Define the start and end dates for each quarter.",
+    images: [
+      {
+        url: "/logo.png",
+        alt: "GMC Attendance Viewer Logo",
+      },
+    ],
+    site: "https://gmc-attendance-viewer.vercel.com/settings",
+  },
+  alternates: {
+    canonical: "https://gmc-attendance-viewer.vercel.com/settings",
+  },
+};
 
 export default function SettingsPage() {
-
-  const isOnline = useIsOnline();
-
-  return (
-    <div className="flex flex-col items-center px-2 mt-5 min-h-[30vh]">
-      {!isOnline && (
-        <div className="flex justify-center items-center w-full mx-2 text-green-700 bg-green-100 border border-green-300 rounded p-2 mb-6 font-semibold">
-          <ExclamationTriangleIcon className="min-w-6 w-6 h-6 min-h-6 text-green-700 mr-2" />
-          You're offline. Settings will still work in Offline Mode.
-        </div>
-      )}
-      {/* Go back button */}
-      <div className="flex items-center mb-4">
-        <Link
-          href="/"
-          className="px-4 flex flex-row justify-center items-center gap-1 py-2 rounded bg-accent text-white font-semibold transition-colors hover:bg-secondary/80"
-        >
-          <ArrowUturnLeftIcon className="w-5 h-5" /> Home
-        </Link>
-      </div>
-      <h1 className="text-2xl text-secondary font-bold mb-4">Settings</h1>
-      <>
-        <p className="text-foreground mb-4">Define the start and end dates for each quarter:</p>
-        <SettingsForm />
-      </>
-    </div>
-  );
+  return <SettingsPageClient />;
 }
