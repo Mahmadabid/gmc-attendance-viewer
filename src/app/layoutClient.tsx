@@ -2,19 +2,8 @@
 
 import Header from "../components/Header";
 import { Analytics } from "@vercel/analytics/next";
-import { Geist, Geist_Mono } from "next/font/google";
 import { useEffect, useState } from "react";
 import { IsOnlineProvider } from "../components/lib/context/IsOnlineContext";
-
-const geistSans = Geist({
-    variable: "--font-geist-sans",
-    subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-    variable: "--font-geist-mono",
-    subsets: ["latin"],
-});
 
 declare global {
     interface Window {
@@ -100,9 +89,7 @@ export default function RootLayoutClient({
                     }}
                 />
             </head>
-            <body
-                className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-            >
+            <body>
                 <Analytics />
                 {isIOS && (
                     <>

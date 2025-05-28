@@ -1,93 +1,13 @@
 // AttendanceCalendarView.tsx
 import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { AttendanceRow } from '../Attendance';
-import { ChevronLeftIcon, ChevronRightIcon, XMarkIcon } from '@heroicons/react/24/outline';
+import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/24/outline';
+import DayDetailModal, { DayAttendance } from './DayDetailModal';
 
 interface AttendanceCalendarViewProps {
     attendance: AttendanceRow[];
     selectedSubject?: string | null;
 }
-
-interface DayAttendance {
-    date: string;
-    attendanceRecords: AttendanceRow[];
-    totalClasses: number;
-    presentClasses: number;
-    absentClasses: number;
-    leaveClasses: number;
-    status: 'present' | 'absent' | 'mixed' | 'leave-only' | 'no-classes';
-}
-
-interface DayDetailModalProps {
-    dayAttendance: DayAttendance | null;
-    onClose: () => void;
-}
-
-const DayDetailModal: React.FC<DayDetailModalProps> = ({ dayAttendance, onClose }) => {
-    if (!dayAttendance) return null;
-
-    return (
-        <div
-            className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
-            onClick={onClose}
-        >
-            <div
-                className="bg-white rounded-lg shadow-xl max-w-md w-full max-h-[80vh] overflow-hidden"
-                onClick={(e) => e.stopPropagation()}
-            >
-                <div className="flex justify-between items-center p-4 border-b border-gray-200">
-                    <h3 className="text-lg font-semibold text-gray-900">
-                        Attendance for {dayAttendance.date}
-                    </h3>
-                    <button
-                        onClick={onClose}
-                        className="text-gray-400 hover:text-gray-600 transition-colors"
-                    >
-                        <XMarkIcon className="h-6 w-6" />
-                    </button>
-                </div>
-
-                <div className="p-4">
-                    <div className="mb-4 text-sm text-gray-600">
-                        Total Classes: {dayAttendance.totalClasses} |
-                        Present: {dayAttendance.presentClasses} |
-                        Absent: {dayAttendance.absentClasses} |
-                        Leave: {dayAttendance.leaveClasses}
-                    </div>
-
-                    <div className="space-y-3 max-h-60 overflow-y-auto">
-                        {dayAttendance.attendanceRecords.map((record, idx) => (
-                            <div
-                                key={idx} className={`p-3 rounded-md border ${record.status.toLowerCase() === 'present'
-                                        ? 'bg-green-50 border-green-200'
-                                        : record.status.toLowerCase() === 'absent'
-                                            ? 'bg-red-50 border-red-200'
-                                            : 'bg-blue-50 border-blue-200'
-                                    }`}
-                            >
-                                <div className="font-medium text-gray-900">{record.subject}</div>
-                                <div className="text-sm text-gray-600">
-                                    {record.lectureType} • {record.teacher}
-                                </div>
-                                <div className="text-sm text-gray-600">
-                                    {record.lectureTime}
-                                </div>
-                                <div className={`text-sm font-medium mt-1 ${record.status.toLowerCase() === 'present'
-                                        ? 'text-green-700'
-                                        : record.status.toLowerCase() === 'absent'
-                                            ? 'text-red-700'
-                                            : 'text-blue-700'
-                                    }`}>
-                                    {record.status}
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-            </div>
-        </div>
-    );
-};
 
 const AttendanceCalendarView: React.FC<AttendanceCalendarViewProps> = ({ attendance, selectedSubject }) => {
     const [currentDate, setCurrentDate] = useState(new Date());
@@ -241,13 +161,13 @@ const AttendanceCalendarView: React.FC<AttendanceCalendarViewProps> = ({ attenda
             default:
                 return baseClasses;
         }
-    };    const getDayNumber = (dayAttendance: DayAttendance) => {
+    }; const getDayNumber = (dayAttendance: DayAttendance) => {
         return dayAttendance.date.split('/')[0];
     };
-    
+
     return (
-        <div className="bg-white rounded-lg shadow-lg border border-secondary/30 max-[400px]:p-1 p-3 sm:p-6">            
-        {/* Calendar Header */}
+        <div className="bg-white rounded-lg shadow-lg border border-secondary/30 max-[400px]:p-1 p-3 sm:p-6">
+            {/* Calendar Header */}
             <div className="flex flex-col sm:flex-row items-center justify-between mb-4 sm:mb-6 gap-3 sm:gap-0">
                 <div className="max-sm:text-center">
                     <h2 className="text-xl sm:text-2xl font-bold text-secondary">{monthName}</h2>
@@ -306,7 +226,7 @@ const AttendanceCalendarView: React.FC<AttendanceCalendarViewProps> = ({ attenda
                 ))}
             </div>
             {/* Calendar Grid */}
-            <div className="space-y-1 sm:space-y-2"> {/* Restored space-y */} 
+            <div className="space-y-1 sm:space-y-2"> {/* Restored space-y */}
                 {calendarData.map((week, weekIdx) => (
                     <div key={weekIdx} className="grid grid-cols-7 gap-1 max-[350px]:gap-0.5 sm:gap-2"> {/* Restored gap and removed borders */}
                         {week.map((dayAttendance, dayIdx) => (
