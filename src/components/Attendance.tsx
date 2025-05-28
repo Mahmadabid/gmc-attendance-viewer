@@ -516,7 +516,7 @@ const Attendance: React.FC = () => {
           }          
           {/* View switcher and Sort order selector */}
           <div className="flex flex-col justify-center items-center gap-4 mb-4">
-            <div className="flex items-center gap-2">
+            <div className="flex items-center my-3 gap-2">
               <label className="font-semibold text-secondary">View:</label>
               <div className="flex rounded-md border border-secondary/30 overflow-hidden">                <button
                   className={`px-4 py-2 text-sm font-medium transition-colors flex items-center gap-2 ${
