@@ -22,14 +22,14 @@ const SubjectFilterButtons: React.FC<SubjectFilterButtonsProps> = ({ subjects, s
       return (
         <button
           key={subject}
-          className={`px-4 py-2 rounded font-semibold border transition-colors ${selectedSubject === subject
+          className={`px-4 group py-2 rounded font-semibold border transition-colors ${selectedSubject === subject
             ? `${isLow ? 'bg-red-700 text-white border-red-900': 'bg-secondary text-white border-secondary'}`
             : isLow
-              ? 'bg-red-200 text-white border-red-500 hover:bg-red-400'
+              ? 'bg-red-200 text-red-700 border-red-500 hover:text-white hover:bg-red-400'
               : 'bg-white text-secondary border-secondary/50 hover:bg-secondary/10'}`}
           onClick={() => setSelectedSubject(subject)}
         >
-          {subject} <span className={`ml-2 text-xs ${selectedSubject === subject ? 'text-white' : isLow ? 'text-white' : 'text-secondary'}`}>({subjectPercentages[subject]}%)</span>
+          {subject} <span className={`ml-2 text-xs ${selectedSubject === subject ? 'text-white' : isLow ? 'text-red-700 group-hover:text-white' : 'text-secondary'}`}>({subjectPercentages[subject]}%)</span>
         </button>
       );
     })}

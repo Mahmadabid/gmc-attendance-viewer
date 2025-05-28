@@ -358,7 +358,6 @@ const Attendance: React.FC = () => {
   const filteredAttendance = selectedSubject
     ? attendanceInQuarter.filter(row => row.subject === selectedSubject)
     : attendanceInQuarter;
-
   // Calculate percentage for each quarter
   const quarterPercentages: Record<number, string> = {};
   if (quarters && quarters.length > 0) {
@@ -376,6 +375,12 @@ const Attendance: React.FC = () => {
       quarterPercentages[idx] = total > 0 ? (present / (total - leave) * 100).toFixed(2) : '0.00';
     });
   }
+
+  // Calculate whole year percentage (total of all attendance, not average of quarters)
+  const wholeYearTotal = attendance.length;
+  const wholeYearPresent = attendance.filter(row => row.status && row.status.toLowerCase() === 'present').length;
+  const wholeYearLeave = attendance.filter(row => row.status && row.status.toLowerCase() === 'leave').length;
+  const wholeYearPercentage = wholeYearTotal === wholeYearLeave ? '100' : wholeYearTotal > 0 ? (wholeYearPresent / (wholeYearTotal - wholeYearLeave) * 100).toFixed(2) : '0.00';
 
   return (
     <div className="mt-8 mx-1 mb-4">
@@ -435,8 +440,8 @@ const Attendance: React.FC = () => {
             </div>
           )}
         </div>
-      </div>
-
+      </div>      
+      
       {/* Quarter filter buttons */}
       {quarters && quarters.length > 0 && (
         <QuarterFilterButtons
@@ -444,6 +449,7 @@ const Attendance: React.FC = () => {
           selectedQuarterIdx={selectedQuarterIdx}
           setSelectedQuarterIdx={setSelectedQuarterIdx}
           quarterPercentages={quarterPercentages}
+          wholeYearPercentage={wholeYearPercentage}
         />
       )}
 
