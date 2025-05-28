@@ -1,5 +1,5 @@
 // AttendanceCalendarView.tsx
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { AttendanceRow } from '../Attendance';
 import { ChevronLeftIcon, ChevronRightIcon, XMarkIcon } from '@heroicons/react/24/outline';
 
@@ -92,20 +92,21 @@ const DayDetailModal: React.FC<DayDetailModalProps> = ({ dayAttendance, onClose 
 const AttendanceCalendarView: React.FC<AttendanceCalendarViewProps> = ({ attendance, selectedSubject }) => {
     const [currentDate, setCurrentDate] = useState(new Date());
     const [selectedDay, setSelectedDay] = useState<DayAttendance | null>(null);
+    const prevSubjectRef = useRef<string | null | undefined>(null); // <-- add this line
 
     // Effect to navigate to a month with data when subject filter changes
     useEffect(() => {
-        if (selectedSubject && attendance.length > 0) {
+        if (selectedSubject && attendance.length > 0 && prevSubjectRef.current !== selectedSubject) {
             // Find the most recent date in the filtered attendance
             const sortedDates = attendance
                 .map(record => parseDate(record.date))
                 .filter((date): date is Date => date !== null)
                 .sort((a, b) => b.getTime() - a.getTime()); // Sort descending (newest first)
-            
             if (sortedDates.length > 0) {
                 setCurrentDate(sortedDates[0]);
             }
         }
+        prevSubjectRef.current = selectedSubject;
     }, [selectedSubject, attendance]);
 
     // Parse date from DD/MM/YYYY format
@@ -245,9 +246,10 @@ const AttendanceCalendarView: React.FC<AttendanceCalendarViewProps> = ({ attenda
     };
     
     return (
-        <div className="bg-white rounded-lg shadow-lg border border-secondary/30 max-[400px]:p-1 p-3 sm:p-6">            {/* Calendar Header */}
+        <div className="bg-white rounded-lg shadow-lg border border-secondary/30 max-[400px]:p-1 p-3 sm:p-6">            
+        {/* Calendar Header */}
             <div className="flex flex-col sm:flex-row items-center justify-between mb-4 sm:mb-6 gap-3 sm:gap-0">
-                <div className="text-center">
+                <div className="max-sm:text-center">
                     <h2 className="text-xl sm:text-2xl font-bold text-secondary">{monthName}</h2>
                     {selectedSubject && (
                         <p className="text-sm text-secondary/70 mt-1">
