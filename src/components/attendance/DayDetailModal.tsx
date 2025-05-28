@@ -34,13 +34,13 @@ const DayDetailModal: React.FC<DayDetailModalProps> = ({ dayAttendance, onClose 
     return (
         // Overlay for the modal, handles closing when clicked outside
         <div
-            className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center flex-col justify-center px-1 min-[330px]:p-2 sm:px-4 md:px-6 py-4 overflow-y-auto font-inter"
+            className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center flex-col justify-center px-1 min-[330px]:p-2 sm:px-4 md:px-6 py-4 font-inter"
             onClick={onClose}
         >
-            <div className='w-full h-28'></div>
+            <div className='w-full h-24'></div>
             {/* Modal content container */}
             <div
-                className="relative bg-white rounded-xl shadow-lg w-full max-w-xs sm:max-w-md md:max-w-lg lg:max-w-xl xl:max-w-2xl overflow-y-auto flex flex-col animate-in fade-in zoom-in duration-200"
+                className="relative bg-white rounded-xl shadow-lg w-full max-w-xs sm:max-w-md md:max-w-lg lg:max-w-xl xl:max-w-2xl overflow-hidden flex flex-col animate-in fade-in zoom-in duration-200"
                 onClick={(e) => e.stopPropagation()} // Prevent clicks inside from closing the modal
             >
                 {/* Header section of the modal */}
@@ -61,7 +61,7 @@ const DayDetailModal: React.FC<DayDetailModalProps> = ({ dayAttendance, onClose 
                 {/* Scrollable content area */}
                 {/* flex-grow makes this div take up all available vertical space */}
                 {/* overflow-y-auto enables vertical scrolling within this div if content overflows */}
-                <div className=" flex-grow max-[330px]:p-2 px-4 py-3 space-y-3 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
+                <div className=" flex-grow max-[330px]:p-2 px-4 py-3 space-y-3 scrollbar-thin overflow-auto scrollbar-thumb-gray-300 scrollbar-track-gray-100">
                     {/* Summary of attendance */}
                     <div className="bg-gray-50 text-sm text-gray-700 rounded-lg px-3 py-2 flex flex-wrap gap-3 justify-around">
                         <div><span className="font-medium">Total:</span> {dayAttendance.totalClasses}</div>
