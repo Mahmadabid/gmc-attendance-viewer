@@ -87,7 +87,7 @@ const AttendanceTable: React.FC<AttendanceTableProps> = ({ attendance, keyMap })
               placeholder="Search attendance records..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-10 py-2 border border-secondary/30 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent"
+              className="w-full pl-10 pr-10 bg-white py-2 border border-secondary/30 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent"
             />
             {searchTerm && (
               <button
