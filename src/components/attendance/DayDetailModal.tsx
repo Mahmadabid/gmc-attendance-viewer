@@ -28,17 +28,19 @@ const DayDetailModal: React.FC<DayDetailModalProps> = ({ dayAttendance, onClose 
             };
         }
     }, [dayAttendance]);
+    
     if (!dayAttendance) return null;
 
     return (
         // Overlay for the modal, handles closing when clicked outside
         <div
-            className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center px-1 min-[330px]:p-2 sm:px-4 md:px-6 py-4 pt-24 mt-10 overflow-y-auto font-inter"
+            className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center flex-col justify-center px-1 min-[330px]:p-2 sm:px-4 md:px-6 py-4 overflow-y-auto font-inter"
             onClick={onClose}
         >
+            <div className='w-full h-28'></div>
             {/* Modal content container */}
             <div
-                className="relative bg-white rounded-xl shadow-lg w-full max-w-xs sm:max-w-md md:max-w-lg lg:max-w-xl xl:max-w-2xl overflow-hidden flex flex-col animate-in fade-in zoom-in duration-200"
+                className="relative bg-white rounded-xl shadow-lg w-full max-w-xs sm:max-w-md md:max-w-lg lg:max-w-xl xl:max-w-2xl overflow-y-auto flex flex-col animate-in fade-in zoom-in duration-200"
                 onClick={(e) => e.stopPropagation()} // Prevent clicks inside from closing the modal
             >
                 {/* Header section of the modal */}
