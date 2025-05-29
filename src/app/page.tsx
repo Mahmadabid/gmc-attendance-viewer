@@ -11,7 +11,7 @@ export const metadata = {
   openGraph: {
     title: "GMC Attendance Viewer",
     description: "Easily check, analyze, and track your attendance records at Gujranwala Medical College (GMC) with a modern, mobile-friendly web app.",
-    url: "https://gmc-attendance-viewer.vercel.com/",
+    url: "https://gmc-attendance-viewer.vercel.app/",
     siteName: "GMC Attendance Viewer",
     images: [
       {
@@ -34,10 +34,10 @@ export const metadata = {
         alt: "GMC Attendance Viewer Logo",
       },
     ],
-    site: "https://gmc-attendance-viewer.vercel.com/",
+    site: "https://gmc-attendance-viewer.vercel.app/",
   },
   alternates: {
-    canonical: "https://gmc-attendance-viewer.vercel.com/",
+    canonical: "https://gmc-attendance-viewer.vercel.app/",
   },
 };
 

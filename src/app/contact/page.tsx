@@ -7,7 +7,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Contact | GMC Attendance Viewer",
     description: "Contact the Gujranwala Medical College (GMC) Attendance Viewer team for queries, bug reports, or feature requests.",
-    url: "https://gmc-attendance-viewer.vercel.com/contact",
+    url: "https://gmc-attendance-viewer.vercel.app/contact",
     siteName: "GMC Attendance Viewer",
     images: [
       {
@@ -30,10 +30,10 @@ export const metadata: Metadata = {
         alt: "GMC Attendance Viewer Logo",
       },
     ],
-    site: "https://gmc-attendance-viewer.vercel.com/contact",
+    site: "https://gmc-attendance-viewer.vercel.app/contact",
   },
   alternates: {
-    canonical: "https://gmc-attendance-viewer.vercel.com/contact",
+    canonical: "https://gmc-attendance-viewer.vercel.app/contact",
   },
 };
 

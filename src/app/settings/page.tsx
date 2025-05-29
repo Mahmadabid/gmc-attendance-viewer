@@ -7,7 +7,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Settings | GMC Attendance Viewer",
     description: "Configure your Gujranwala Medical College (GMC) Attendance Viewer settings. Define the start and end dates for each quarter.",
-    url: "https://gmc-attendance-viewer.vercel.com/settings",
+    url: "https://gmc-attendance-viewer.vercel.app/settings",
     siteName: "GMC Attendance Viewer",
     images: [
       {
@@ -30,10 +30,10 @@ export const metadata: Metadata = {
         alt: "GMC Attendance Viewer Logo",
       },
     ],
-    site: "https://gmc-attendance-viewer.vercel.com/settings",
+    site: "https://gmc-attendance-viewer.vercel.app/settings",
   },
   alternates: {
-    canonical: "https://gmc-attendance-viewer.vercel.com/settings",
+    canonical: "https://gmc-attendance-viewer.vercel.app/settings",
   },
 };
 
